@@ -1,7 +1,7 @@
 // ============================================================
 // ARCHIVO: src/carrito.js
 // PROPÓSITO: Código de producción del carrito de compras (TDD).
-// ESTADO ACTUAL: Iteración 7 — REFACTOR (extrae baseGravable).
+// ESTADO ACTUAL: Reto A — VERDE (agrega resumen de la compra).
 // ============================================================
 
 // Laboratorio TDD: carrito de compras
@@ -33,15 +33,20 @@ const CUPONES = {
 // ITERACIÓN 5: ELIMINAR PRODUCTOS  [ESTADO: VERDE]
 // ITERACIÓN 6: CUPONES DE DESCUENTO  [ESTADO: VERDE]
 // ITERACIÓN 7: IVA Y TOTAL A PAGAR  [ESTADO: VERDE]
+//   - Incluye refactor final: baseGravable().
 //
-// REFACTOR FINAL (Iteración 7):
-// La expresión "subtotal - descuento" se repetía en iva() y
-// total(). Se extrajo a un método con nombre explicativo:
-// baseGravable(). Las pruebas no cambian; siguen en 17/17.
+// RETO A: RESUMEN DE LA COMPRA  [ESTADO: VERDE]
+// Requisito: resumen() devuelve un objeto con subtotal,
+// descuento, iva y total.
+//
+// TÉCNICA: Se agrupan los 4 valores en un objeto literal.
+// No hay lógica nueva: reutiliza subtotal(), descuento(),
+// iva() y total() ya existentes.
 //
 // RESULTADO ESPERADO AL EJECUTAR npm test:
-//   tests 17 | pass 17 | fail 0 (mismo resultado que antes del
-//   refactor: cambiamos la estructura sin cambiar el comportamiento).
+//   ✔ resumen devuelve todos los valores de la compra
+//   ✔ (las 17 pruebas anteriores siguen en verde)
+//   tests 18 | pass 18 | fail 0
 // ============================================================
 export class Carrito {
   // ----------------------------------------------------------
@@ -133,9 +138,8 @@ export class Carrito {
 
   // ----------------------------------------------------------
   // MÉTODO: baseGravable()
-  // NUEVO (refactor Iteración 7): devuelve subtotal - descuento.
-  // Es la base sobre la que se calcula el IVA.
-  // Se extrajo para eliminar la duplicación en iva() y total().
+  // Devuelve subtotal - descuento.
+  // (Refactor Iteración 7)
   // ----------------------------------------------------------
   baseGravable() {
     return this.subtotal() - this.descuento();
@@ -144,7 +148,7 @@ export class Carrito {
   // ----------------------------------------------------------
   // MÉTODO: iva()
   // Devuelve el IVA (19 %) sobre la base gravable.
-  // (Iteración 7, refactorizado)
+  // (Iteración 7)
   // ----------------------------------------------------------
   iva() {
     return Math.round(this.baseGravable() * IVA);
@@ -153,9 +157,24 @@ export class Carrito {
   // ----------------------------------------------------------
   // MÉTODO: total()
   // Devuelve el total a pagar: base gravable + IVA.
-  // (Iteración 7, refactorizado)
+  // (Iteración 7)
   // ----------------------------------------------------------
   total() {
     return this.baseGravable() + this.iva();
+  }
+
+  // ----------------------------------------------------------
+  // MÉTODO: resumen()
+  // NUEVO (Reto A): devuelve un objeto con los 4 valores
+  // de la compra: subtotal, descuento, iva y total.
+  // Reutiliza los métodos ya existentes.
+  // ----------------------------------------------------------
+  resumen() {
+    return {
+      subtotal: this.subtotal(),
+      descuento: this.descuento(),
+      iva: this.iva(),
+      total: this.total(),
+    };
   }
 }
