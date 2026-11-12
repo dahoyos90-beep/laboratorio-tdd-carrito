@@ -1,20 +1,23 @@
 // ============================================================
 // ARCHIVO: src/carrito.js
 // PROPÓSITO: Código de producción del carrito de compras (TDD).
-// ESTADO ACTUAL: Iteración 6 — VERDE (agrega cupones).
+// ESTADO ACTUAL: Iteración 7 — VERDE (agrega IVA y total).
 // ============================================================
 
 // Laboratorio TDD: carrito de compras
 // Escribe aquí el código SOLO después de tener una prueba en rojo.
 
 // ============================================================
+// CONSTANTE: IVA
+// Porcentaje de IVA aplicable en Colombia.
+// Se define fuera de la clase para facilitar cambiarlo en el
+// futuro (una sola línea).
+// ============================================================
+const IVA = 0.19;
+
+// ============================================================
 // CONSTANTE: CUPONES
 // Diccionario de cupones válidos y su porcentaje de descuento.
-// Se define fuera de la clase para que agregar un cupón nuevo
-// sea una línea más y no un if más (según el PDF).
-// ------------------------------------------------------------
-//   DESC10 → 10 % de descuento
-//   DESC20 → 20 % de descuento
 // ============================================================
 const CUPONES = {
   DESC10: 0.10,
@@ -43,26 +46,33 @@ const CUPONES = {
 //   - eliminar() usa findIndex + splice; error si no existe.
 //
 // ITERACIÓN 6: CUPONES DE DESCUENTO  [ESTADO: VERDE]
-// Requisito: los cupones DESC10 y DESC20 descuentan el 10 %
-// y el 20 % del subtotal. Un cupón desconocido es un error.
+//   - CUPONES fuera de la clase; aplicarCupon() y descuento().
 //
-// TÉCNICA: Se usa un objeto CUPONES fuera de la clase. El
-// carrito guarda el código aplicado en this.cupon. El descuento
-// se calcula con Math.round (sin decimales, según el PDF).
+// ITERACIÓN 7: IVA Y TOTAL A PAGAR  [ESTADO: VERDE]
+// Requisito: el IVA es del 19 % y se calcula sobre el subtotal
+// menos el descuento. El total es esa base más el IVA.
+//
+// TÉCNICA: Se agrega la constante IVA = 0.19 fuera de la clase.
+//   - iva(): Math.round((subtotal - descuento) * IVA).
+//   - total(): subtotal - descuento + iva.
+// Math.round se usa para no tener decimales (COP), según el PDF.
+//
+// EJEMPLO (2 × 50.000 con DESC10):
+//   subtotal 100.000 - descuento 10.000 = base 90.000
+//   iva = 90.000 × 0.19 = 17.100
+//   total = 90.000 + 17.100 = 107.100
 //
 // RESULTADO ESPERADO AL EJECUTAR npm test:
-//   ✔ sin cupón el descuento es 0
-//   ✔ el cupón DESC10 descuenta el 10 % del subtotal
-//   ✔ el cupón DESC20 descuenta el 20 % del subtotal
-//   ✔ un cupón inexistente lanza un error
-//   ✔ (las 10 pruebas anteriores siguen en verde)
-//   tests 14 | pass 14 | fail 0
+//   ✔ el IVA es el 19 % del subtotal cuando no hay cupón
+//   ✔ el IVA se calcula sobre el valor con descuento
+//   ✔ un carrito vacío tiene total 0
+//   ✔ (las 14 pruebas anteriores siguen en verde)
+//   tests 17 | pass 17 | fail 0
 // ============================================================
 export class Carrito {
   // ----------------------------------------------------------
   // CONSTRUCTOR
   // Inicializa el arreglo de productos y el cupón aplicado.
-  // this.cupon = null significa que no hay cupón aplicado.
   // ----------------------------------------------------------
   constructor() {
     this.productos = [];
@@ -132,8 +142,6 @@ export class Carrito {
   // ----------------------------------------------------------
   // MÉTODO: aplicarCupon(codigo)
   // Guarda el código de cupón si es válido.
-  // Si el código no está en CUPONES, lanza Error con mensaje
-  // que contiene 'no es válido'.
   // (Iteración 6)
   // ----------------------------------------------------------
   aplicarCupon(codigo) {
@@ -147,11 +155,29 @@ export class Carrito {
   // MÉTODO: descuento()
   // Devuelve el valor del descuento en pesos colombianos.
   // Si no hay cupón aplicado, devuelve 0.
-  // Usa Math.round para no tener decimales (COP).
   // (Iteración 6)
   // ----------------------------------------------------------
   descuento() {
     if (!this.cupon) return 0;
     return Math.round(this.subtotal() * CUPONES[this.cupon]);
+  }
+
+  // ----------------------------------------------------------
+  // MÉTODO: iva()
+  // Devuelve el IVA (19 %) calculado sobre la base gravable
+  // (subtotal - descuento). Redondeado a pesos colombianos.
+  // (Iteración 7)
+  // ----------------------------------------------------------
+  iva() {
+    return Math.round((this.subtotal() - this.descuento()) * IVA);
+  }
+
+  // ----------------------------------------------------------
+  // MÉTODO: total()
+  // Devuelve el total a pagar: base gravable + IVA.
+  // (Iteración 7)
+  // ----------------------------------------------------------
+  total() {
+    return this.subtotal() - this.descuento() + this.iva();
   }
 }
