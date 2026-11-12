@@ -1,7 +1,7 @@
 // ============================================================
 // ARCHIVO: src/carrito.js
 // PROPÓSITO: Código de producción del carrito de compras (TDD).
-// ESTADO ACTUAL: Reto C — VERDE (agrega actualizarCantidad).
+// ESTADO ACTUAL: Reto D — VERDE (cupones flexibles).
 // ============================================================
 
 // Laboratorio TDD: carrito de compras
@@ -22,13 +22,11 @@ const CUPONES = {
 
 // ============================================================
 // CONSTANTE: ENVIO
-// Costo del envío en pesos colombianos.
 // ============================================================
 const ENVIO = 12000;
 
 // ============================================================
 // CONSTANTE: ENVIO_GRATIS_DESDE
-// Base gravable a partir de la cual el envío es gratis.
 // ============================================================
 const ENVIO_GRATIS_DESDE = 150000;
 
@@ -45,26 +43,22 @@ const ENVIO_GRATIS_DESDE = 150000;
 // ITERACIÓN 7: IVA Y TOTAL A PAGAR  [ESTADO: VERDE]
 // RETO A: RESUMEN DE LA COMPRA  [ESTADO: VERDE]
 // RETO B: COSTO DE ENVÍO  [ESTADO: VERDE]
-//
 // RETO C: ACTUALIZAR CANTIDAD  [ESTADO: VERDE]
-// Requisito: actualizarCantidad(nombre, nueva).
-//   - Si nueva < 0 → lanza error con /cantidad/.
-//   - Si el producto no existe → lanza error con /no está en el carrito/.
-//   - Si nueva === 0 → elimina el producto.
-//   - Si nueva > 0 → actualiza la cantidad.
 //
-// TÉCNICA: Se valida primero la cantidad negativa, luego se
-// busca el producto con findIndex. Si no existe, se lanza error.
-// Si existe y nueva === 0, se elimina con splice. Si nueva > 0,
-// se actualiza la cantidad.
+// RETO D: CUPONES FLEXIBLES  [ESTADO: VERDE]
+// Requisito: 'desc10' (minúsculas) y ' DESC10 ' (con espacios)
+// deben funcionar igual que 'DESC10'.
+//
+// TÉCNICA: En aplicarCupon(), se normaliza el código con
+// .trim().toUpperCase() antes de buscar en CUPONES. Así
+// cualquier combinación de mayúsculas/minúsculas y espacios
+// se convierte al formato canónico (DESC10, DESC20).
 //
 // RESULTADO ESPERADO AL EJECUTAR npm test:
-//   ✔ actualiza la cantidad de un producto existente
-//   ✔ si la nueva cantidad es 0, elimina el producto
-//   ✔ si la nueva cantidad es negativa, lanza un error
-//   ✔ si el producto no existe, lanza un error
-//   ✔ (las 22 pruebas anteriores siguen en verde)
-//   tests 26 | pass 26 | fail 0
+//   ✔ acepta el cupón en minúsculas
+//   ✔ acepta el cupón con espacios alrededor
+//   ✔ (las 26 pruebas anteriores siguen en verde)
+//   tests 28 | pass 28 | fail 0
 // ============================================================
 export class Carrito {
   // ----------------------------------------------------------
@@ -113,32 +107,24 @@ export class Carrito {
 
   // ----------------------------------------------------------
   // MÉTODO: actualizarCantidad(nombre, nueva)
-  // NUEVO (Reto C): actualiza la cantidad de un producto.
-  //   - nueva < 0 → error con /cantidad/.
-  //   - producto inexistente → error con /no está en el carrito/.
-  //   - nueva === 0 → elimina el producto.
-  //   - nueva > 0 → actualiza la cantidad.
+  // (Reto C)
   // ----------------------------------------------------------
   actualizarCantidad(nombre, nueva) {
-    // Validación de cantidad negativa.
     if (!Number.isInteger(nueva) || nueva < 0) {
       throw new Error('La cantidad debe ser un entero mayor o igual a cero');
     }
 
-    // Buscar el producto por nombre.
     const indice = this.productos.findIndex((p) => p.nombre === nombre);
 
     if (indice === -1) {
       throw new Error(`El producto "${nombre}" no está en el carrito`);
     }
 
-    // Si la nueva cantidad es 0, eliminar el producto.
     if (nueva === 0) {
       this.productos.splice(indice, 1);
       return;
     }
 
-    // Si es positiva, actualizar la cantidad.
     this.productos[indice].cantidad = nueva;
   }
 
@@ -160,13 +146,18 @@ export class Carrito {
 
   // ----------------------------------------------------------
   // MÉTODO: aplicarCupon(codigo)
-  // (Iteración 6)
+  // (Iteración 6 + Reto D)
+  // Normaliza el código con trim().toUpperCase() antes de
+  // buscar en CUPONES. Así 'desc10' y ' DESC10 ' funcionan.
   // ----------------------------------------------------------
   aplicarCupon(codigo) {
-    if (!(codigo in CUPONES)) {
+    const normalizado = String(codigo).trim().toUpperCase();
+
+    if (!(normalizado in CUPONES)) {
       throw new Error(`El cupón "${codigo}" no es válido`);
     }
-    this.cupon = codigo;
+
+    this.cupon = normalizado;
   }
 
   // ----------------------------------------------------------
