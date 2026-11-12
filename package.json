@@ -4,7 +4,13 @@
   "description": "Laboratorio de TDD con JavaScript puro: carrito de compras",
   "type": "module",
   "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
     "test": "node --test",
     "test:watch": "node --test --watch"
+  },
+  "devDependencies": {
+    "vite": "^5.0.0"
   }
 }

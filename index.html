@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<!-- ============================================================
+     ARCHIVO: index.html
+     PROPÓSITO: Interfaz gráfica del carrito de compras.
+     ESTADO: Completo, etiquetado, usando Vite para el servidor.
+     ============================================================ -->
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Carrito de Compras | Laboratorio TDD</title>
+  <!-- Hoja de estilos (en la misma raíz) -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- ============================================================
+       ENCABEZADO
+       ============================================================ -->
+  <header class="header">
+    <h1>🛒 Mi Carrito de Compras</h1>
+    <p class="subtitle">Laboratorio TDD — JavaScript Puro</p>
+  </header>
+
+  <!-- ============================================================
+       CONTENIDO PRINCIPAL
+       ============================================================ -->
+  <main class="main-container">
+    
+    <!-- SECCIÓN 1: FORMULARIO DE AGREGAR -->
+    <section class="section-add" aria-labelledby="titulo-agregar">
+      <h2 id="titulo-agregar">Agregar Producto</h2>
+      <form id="form-agregar" class="form-agregar">
+        <div class="input-group">
+          <label for="input-nombre">Nombre del producto:</label>
+          <input type="text" id="input-nombre" placeholder="Ej: Mouse" required>
+        </div>
+        <div class="input-group">
+          <label for="input-precio">Precio (COP):</label>
+          <input type="number" id="input-precio" placeholder="Ej: 50000" min="1" step="1" required>
+        </div>
+        <div class="input-group">
+          <label for="input-cantidad">Cantidad:</label>
+          <input type="number" id="input-cantidad" value="1" min="1" step="1" required>
+        </div>
+        <button type="submit" class="btn btn-primary" id="btn-agregar">Agregar al Carrito</button>
+      </form>
+      <p id="mensaje-error" class="error-message" aria-live="polite"></p>
+    </section>
+
+    <!-- SECCIÓN 2: TABLA DEL CARRITO -->
+    <section class="section-cart" aria-labelledby="titulo-carrito">
+      <h2 id="titulo-carrito">Productos en el Carrito</h2>
+      <div id="carrito-vacio" class="empty-state">
+        <p>El carrito está vacío. Agrega un producto para comenzar.</p>
+      </div>
+      <table class="tabla-carrito" id="tabla-carrito" style="display: none;">
+        <thead>
+          <tr>
+            <th>Producto</th>
+            <th>Precio</th>
+            <th>Cantidad</th>
+            <th>Subtotal</th>
+            <th>Acción</th>
+          </tr>
+        </thead>
+        <tbody id="cuerpo-tabla"></tbody>
+      </table>
+    </section>
+
+    <!-- SECCIÓN 3: CUPONES Y TOTALES -->
+    <section class="section-totales" aria-labelledby="titulo-totales">
+      <h2 id="titulo-totales">Resumen de la Compra</h2>
+      <div class="cupon-container">
+        <label for="input-cupon">Cupón de descuento:</label>
+        <div class="cupon-input-group">
+          <input type="text" id="input-cupon" placeholder="Ej: DESC10">
+          <button type="button" class="btn btn-secondary" id="btn-aplicar-cupon">Aplicar</button>
+          <button type="button" class="btn btn-danger" id="btn-quitar-cupon" style="display: none;">Quitar</button>
+        </div>
+        <p id="mensaje-cupon" class="error-message" aria-live="polite"></p>
+      </div>
+      <div class="totales-panel">
+        <div class="total-row"><span>Subtotal:</span><span id="total-subtotal">$0</span></div>
+        <div class="total-row"><span>Descuento:</span><span id="total-descuento">-$0</span></div>
+        <div class="total-row"><span>IVA (19%):</span><span id="total-iva">$0</span></div>
+        <div class="total-row"><span>Envío:</span><span id="total-envio">$0</span></div>
+        <hr>
+        <div class="total-row total-final"><span>Total a pagar:</span><span id="total-final">$0</span></div>
+      </div>
+      <button type="button" class="btn btn-danger btn-block" id="btn-vaciar-carrito" style="display: none;">Vaciar Carrito</button>
+    </section>
+  </main>
+
+  <!-- ============================================================
+       PIE DE PÁGINA
+       ============================================================ -->
+  <footer class="footer">
+    <p>Proyecto TDD — Daniel Alejandro (dahoyos90-beep)</p>
+  </footer>
+
+  <!-- Script principal (en la misma raíz) -->
+  <script type="module" src="app.js"></script>
+</body>
+</html>
