@@ -1,7 +1,7 @@
 // ============================================================
 // ARCHIVO: test/carrito.test.js
 // PROPÓSITO: Pruebas unitarias del carrito de compras (TDD).
-// ESTADO ACTUAL: Iteración 4 — ROJO (las pruebas nuevas deben fallar).
+// ESTADO ACTUAL: Iteración 5 — ROJO (las pruebas nuevas deben fallar).
 // ============================================================
 
 // --- Importación de herramientas de prueba nativas de Node.js ---
@@ -27,9 +27,6 @@ describe('Carrito de compras', () => {
 
   // ============================================================
   // ITERACIÓN 1: CARRITO VACÍO  [ESTADO: VERDE]
-  // Requisito: un carrito recién creado no tiene ítems
-  // y su subtotal es 0.
-  //
   // RESULTADO ESPERADO: tests 2 | pass 2 | fail 0
   // ============================================================
   describe('Iteración 1: carrito vacío', () => {
@@ -46,10 +43,6 @@ describe('Carrito de compras', () => {
 
   // ============================================================
   // ITERACIÓN 2: AGREGAR PRODUCTOS  [ESTADO: VERDE]
-  // Requisito: al agregar productos, el carrito cuenta las
-  // unidades y calcula el subtotal (precio × cantidad).
-  // Si no se indica la cantidad, se asume 1.
-  //
   // RESULTADO ESPERADO: tests 5 | pass 5 | fail 0
   // ============================================================
   describe('Iteración 2: agregar productos', () => {
@@ -80,9 +73,6 @@ describe('Carrito de compras', () => {
 
   // ============================================================
   // ITERACIÓN 3: PRODUCTO REPETIDO  [ESTADO: VERDE]
-  // Requisito: si se agrega un producto que ya está en el
-  // carrito, se acumula la cantidad en la misma línea.
-  //
   // RESULTADO ESPERADO: tests 6 | pass 6 | fail 0
   // ============================================================
   describe('Iteración 3: producto repetido', () => {
@@ -99,19 +89,8 @@ describe('Carrito de compras', () => {
   });
 
   // ============================================================
-  // ITERACIÓN 4: VALIDACIONES  [ESTADO: ROJO]
-  // Requisito: no se aceptan precios menores o iguales a 0,
-  // ni cantidades que no sean enteros positivos.
-  //
-  // RESULTADO ESPERADO AL EJECUTAR npm test:
-  //   ✖ no permite precios negativos o en cero
-  //   ✖ no permite cantidades en cero, negativas o decimales
-  //   tests 8 | pass 6 | fail 2
-  //
-  // ERROR ESPERADO:
-  //   AssertionError [ERR_ASSERTION]: Missing expected exception.
-  //   (la prueba esperaba un error, pero agregar() aceptó los
-  //   valores inválidos sin quejarse).
+  // ITERACIÓN 4: VALIDACIONES  [ESTADO: VERDE]
+  // RESULTADO ESPERADO: tests 8 | pass 8 | fail 0
   // ============================================================
   describe('Iteración 4: validaciones', () => {
     // Prueba 4.1: rechaza precios negativos o en cero.
@@ -125,6 +104,40 @@ describe('Carrito de compras', () => {
       assert.throws(() => carrito.agregar('Mouse', 50000, 0), /cantidad/);
       assert.throws(() => carrito.agregar('Mouse', 50000, -1), /cantidad/);
       assert.throws(() => carrito.agregar('Mouse', 50000, 1.5), /cantidad/);
+    });
+  });
+
+  // ============================================================
+  // ITERACIÓN 5: ELIMINAR PRODUCTOS  [ESTADO: ROJO]
+  // Requisito: se puede quitar un producto del carrito por su
+  // nombre. Si el producto no existe, se lanza un error.
+  //
+  // RESULTADO ESPERADO AL EJECUTAR npm test:
+  //   ✖ eliminar un producto lo quita del carrito
+  //   ✖ eliminar un producto que no existe lanza un error
+  //   tests 10 | pass 8 | fail 2
+  //
+  // ERROR ESPERADO:
+  //   TypeError: carrito.eliminar is not a function
+  //   AssertionError: The input did not match the regular
+  //   expression /no está en el carrito/
+  // ============================================================
+  describe('Iteración 5: eliminar productos', () => {
+    // Prueba 5.1: eliminar un producto lo quita del carrito
+    // y actualiza cantidad y subtotal.
+    test('eliminar un producto lo quita del carrito', () => {
+      carrito.agregar('Mouse', 50000, 2);
+      carrito.agregar('Teclado', 120000, 1);
+
+      carrito.eliminar('Mouse');
+
+      assert.equal(carrito.cantidadDeItems(), 1);
+      assert.equal(carrito.subtotal(), 120000);
+    });
+
+    // Prueba 5.2: eliminar un producto que no existe lanza error.
+    test('eliminar un producto que no existe lanza un error', () => {
+      assert.throws(() => carrito.eliminar('Monitor'), /no está en el carrito/);
     });
   });
 
