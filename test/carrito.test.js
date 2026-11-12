@@ -1,20 +1,13 @@
 // ============================================================
 // ARCHIVO: test/carrito.test.js
 // PROPÓSITO: Pruebas unitarias del carrito de compras (TDD).
-// ESTADO ACTUAL: Reto C — ROJO (las pruebas nuevas deben fallar).
+// ESTADO ACTUAL: Reto D — ROJO (las pruebas nuevas deben fallar).
 // ============================================================
 
-// --- Importación de herramientas de prueba nativas de Node.js ---
 import { describe, test, beforeEach } from 'node:test';
 import assert from 'node:assert/strict';
-
-// --- Importación de la clase que vamos a probar ---
 import { Carrito } from '../src/carrito.js';
 
-// ============================================================
-// GRUPO PRINCIPAL: Carrito de compras
-// Contiene todas las iteraciones del taller y los retos.
-// ============================================================
 describe('Carrito de compras', () => {
   let carrito;
 
@@ -212,25 +205,9 @@ describe('Carrito de compras', () => {
   });
 
   // ============================================================
-  // RETO C: ACTUALIZAR CANTIDAD  [ESTADO: ROJO]
-  // Requisito: actualizarCantidad(nombre, nueva).
-  //   - Si nueva === 0 → elimina el producto.
-  //   - Si nueva < 0 → lanza error con /cantidad/.
-  //   - Si nueva > 0 → actualiza la cantidad.
-  //   - Si el producto no existe → lanza error con /no está en el carrito/.
-  //
-  // RESULTADO ESPERADO AL EJECUTAR npm test:
-  //   ✖ actualiza la cantidad de un producto existente
-  //   ✖ si la nueva cantidad es 0, elimina el producto
-  //   ✖ si la nueva cantidad es negativa, lanza un error
-  //   ✖ si el producto no existe, lanza un error
-  //   tests 26 | pass 22 | fail 4
-  //
-  // ERROR ESPERADO:
-  //   TypeError: carrito.actualizarCantidad is not a function
+  // RETO C: ACTUALIZAR CANTIDAD  [ESTADO: VERDE]
   // ============================================================
   describe('Reto C: actualizar cantidad', () => {
-    // Prueba C.1: actualiza la cantidad de un producto existente.
     test('actualiza la cantidad de un producto existente', () => {
       carrito.agregar('Mouse', 50000, 2);
 
@@ -240,7 +217,6 @@ describe('Carrito de compras', () => {
       assert.equal(carrito.subtotal(), 250000);
     });
 
-    // Prueba C.2: si la nueva cantidad es 0, elimina el producto.
     test('si la nueva cantidad es 0, elimina el producto', () => {
       carrito.agregar('Mouse', 50000, 2);
       carrito.agregar('Teclado', 120000, 1);
@@ -251,19 +227,51 @@ describe('Carrito de compras', () => {
       assert.equal(carrito.subtotal(), 120000);
     });
 
-    // Prueba C.3: si la nueva cantidad es negativa, lanza error.
     test('si la nueva cantidad es negativa, lanza un error', () => {
       carrito.agregar('Mouse', 50000, 2);
 
       assert.throws(() => carrito.actualizarCantidad('Mouse', -1), /cantidad/);
     });
 
-    // Prueba C.4: si el producto no existe, lanza error.
     test('si el producto no existe, lanza un error', () => {
       assert.throws(
         () => carrito.actualizarCantidad('Monitor', 3),
         /no está en el carrito/
       );
+    });
+  });
+
+  // ============================================================
+  // RETO D: CUPONES FLEXIBLES  [ESTADO: ROJO]
+  // Requisito: 'desc10' (minúsculas) y ' DESC10 ' (con espacios)
+  // deben funcionar igual que 'DESC10'.
+  //
+  // RESULTADO ESPERADO AL EJECUTAR npm test:
+  //   ✖ acepta el cupón en minúsculas
+  //   ✖ acepta el cupón con espacios alrededor
+  //   tests 28 | pass 26 | fail 2
+  //
+  // ERROR ESPERADO:
+  //   AssertionError: The input did not match /no es válido/
+  //   (el cupón 'desc10' no está en CUPONES y lanza error).
+  // ============================================================
+  describe('Reto D: cupones flexibles', () => {
+    // Prueba D.1: acepta cupón en minúsculas.
+    test('acepta el cupón en minúsculas', () => {
+      carrito.agregar('Teclado', 200000, 1);
+
+      carrito.aplicarCupon('desc10');
+
+      assert.equal(carrito.descuento(), 20000);
+    });
+
+    // Prueba D.2: acepta cupón con espacios alrededor.
+    test('acepta el cupón con espacios alrededor', () => {
+      carrito.agregar('Teclado', 200000, 1);
+
+      carrito.aplicarCupon(' DESC10 ');
+
+      assert.equal(carrito.descuento(), 20000);
     });
   });
 
