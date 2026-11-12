@@ -1,7 +1,7 @@
 // ============================================================
 // ARCHIVO: test/carrito.test.js
 // PROPÓSITO: Pruebas unitarias del carrito de compras (TDD).
-// ESTADO ACTUAL: Reto D — ROJO (las pruebas nuevas deben fallar).
+// ESTADO ACTUAL: Reto E — ROJO (las pruebas nuevas deben fallar).
 // ============================================================
 
 import { describe, test, beforeEach } from 'node:test';
@@ -242,21 +242,9 @@ describe('Carrito de compras', () => {
   });
 
   // ============================================================
-  // RETO D: CUPONES FLEXIBLES  [ESTADO: ROJO]
-  // Requisito: 'desc10' (minúsculas) y ' DESC10 ' (con espacios)
-  // deben funcionar igual que 'DESC10'.
-  //
-  // RESULTADO ESPERADO AL EJECUTAR npm test:
-  //   ✖ acepta el cupón en minúsculas
-  //   ✖ acepta el cupón con espacios alrededor
-  //   tests 28 | pass 26 | fail 2
-  //
-  // ERROR ESPERADO:
-  //   AssertionError: The input did not match /no es válido/
-  //   (el cupón 'desc10' no está en CUPONES y lanza error).
+  // RETO D: CUPONES FLEXIBLES  [ESTADO: VERDE]
   // ============================================================
   describe('Reto D: cupones flexibles', () => {
-    // Prueba D.1: acepta cupón en minúsculas.
     test('acepta el cupón en minúsculas', () => {
       carrito.agregar('Teclado', 200000, 1);
 
@@ -265,13 +253,55 @@ describe('Carrito de compras', () => {
       assert.equal(carrito.descuento(), 20000);
     });
 
-    // Prueba D.2: acepta cupón con espacios alrededor.
     test('acepta el cupón con espacios alrededor', () => {
       carrito.agregar('Teclado', 200000, 1);
 
       carrito.aplicarCupon(' DESC10 ');
 
       assert.equal(carrito.descuento(), 20000);
+    });
+  });
+
+  // ============================================================
+  // RETO E: CUPÓN DE VALOR FIJO  [ESTADO: ROJO]
+  // Requisito: el cupón MENO530K resta $30.000 fijos, pero
+  // el descuento nunca puede dejar la base en negativo.
+  //
+  // RESULTADO ESPERADO AL EJECUTAR npm test:
+  //   ✖ MENO530K resta 30.000 fijos
+  //   ✖ MENO530K no deja la base en negativo
+  //   ✖ MENO530K acepta minúsculas y espacios
+  //   tests 31 | pass 28 | fail 3
+  //
+  // ERROR ESPERADO:
+  //   Error: El cupón "MENO530K" no es válido
+  //   (porque MENO530K no está en CUPONES todavía).
+  // ============================================================
+  describe('Reto E: cupón de valor fijo', () => {
+    // Prueba E.1: MENO530K resta 30.000 fijos.
+    // 1 × 100.000 = 100.000; descuento 30.000.
+    test('MENO530K resta 30.000 fijos', () => {
+      carrito.agregar('Mouse', 100000, 1);
+      carrito.aplicarCupon('MENO530K');
+
+      assert.equal(carrito.descuento(), 30000);
+    });
+
+    // Prueba E.2: MENO530K no deja la base en negativo.
+    // 1 × 20.000 = 20.000; descuento debe ser 20.000 (no 30.000).
+    test('MENO530K no deja la base en negativo', () => {
+      carrito.agregar('Mouse', 20000, 1);
+      carrito.aplicarCupon('MENO530K');
+
+      assert.equal(carrito.descuento(), 20000);
+    });
+
+    // Prueba E.3: MENO530K acepta minúsculas y espacios.
+    test('MENO530K acepta minúsculas y espacios', () => {
+      carrito.agregar('Mouse', 100000, 1);
+      carrito.aplicarCupon(' meno530k ');
+
+      assert.equal(carrito.descuento(), 30000);
     });
   });
 
