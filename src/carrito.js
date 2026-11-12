@@ -1,7 +1,7 @@
 // ============================================================
 // ARCHIVO: src/carrito.js
 // PROPÓSITO: Código de producción del carrito de compras (TDD).
-// ESTADO ACTUAL: Iteración 4 — VERDE (agrega validaciones).
+// ESTADO ACTUAL: Iteración 5 — VERDE (agrega eliminar producto).
 // ============================================================
 
 // Laboratorio TDD: carrito de compras
@@ -23,20 +23,22 @@
 //   - agregar() busca con .find() y acumula cantidad si existe.
 //
 // ITERACIÓN 4: VALIDACIONES  [ESTADO: VERDE]
-// Requisito: no se aceptan precios menores o iguales a 0,
-// ni cantidades que no sean enteros positivos.
+//   - agregar() valida precio > 0 (number) y cantidad entero > 0.
 //
-// TÉCNICA: Al inicio de agregar(), se valida:
-//   - precio: debe ser número y > 0. Si no, throw Error con 'precio'.
-//   - cantidad: debe ser entero y > 0. Si no, throw Error con 'cantidad'.
-// Las pruebas usan assert.throws(fn, /precio/) y /cantidad/ para
-// verificar que el mensaje del error contenga esa palabra.
+// ITERACIÓN 5: ELIMINAR PRODUCTOS  [ESTADO: VERDE]
+// Requisito: se puede quitar un producto del carrito por su
+// nombre. Si el producto no existe, se lanza un error.
+//
+// TÉCNICA: eliminar(nombre) usa findIndex() para localizar el
+// producto por nombre. Si el indice es -1, lanza Error con
+// mensaje que contiene 'no está en el carrito'. Si existe,
+// lo quita con splice(indice, 1).
 //
 // RESULTADO ESPERADO AL EJECUTAR npm test:
-//   ✔ no permite precios negativos o en cero
-//   ✔ no permite cantidades en cero, negativas o decimales
-//   ✔ (las 6 pruebas anteriores siguen en verde)
-//   tests 8 | pass 8 | fail 0
+//   ✔ eliminar un producto lo quita del carrito
+//   ✔ eliminar un producto que no existe lanza un error
+//   ✔ (las 8 pruebas anteriores siguen en verde)
+//   tests 10 | pass 10 | fail 0
 // ============================================================
 export class Carrito {
   // ----------------------------------------------------------
@@ -52,16 +54,8 @@ export class Carrito {
   // MÉTODO: agregar(nombre, precio, cantidad)
   // Agrega un producto al carrito. Si no se indica cantidad,
   // se asume 1.
-  //
-  // Iteración 4: antes de insertar o acumular, valida:
-  //   - precio debe ser número y mayor que 0.
-  //   - cantidad debe ser entero y mayor que 0.
-  // Si alguna validación falla, lanza un Error con mensaje
-  // que contiene 'precio' o 'cantidad' (para que las pruebas
-  // con assert.throws(fn, /regex/) lo detecten).
-  //
-  // Iteración 3: si el producto ya existe por nombre, acumula
-  // la cantidad; si no, lo inserta como nuevo.
+  // Iteración 4: valida precio y cantidad antes de insertar.
+  // Iteración 3: acumula cantidad si el producto ya existe.
   // ----------------------------------------------------------
   agregar(nombre, precio, cantidad = 1) {
     // --- Validación de precio (Iteración 4) ---
@@ -82,6 +76,23 @@ export class Carrito {
     } else {
       this.productos.push({ nombre, precio, cantidad });
     }
+  }
+
+  // ----------------------------------------------------------
+  // MÉTODO: eliminar(nombre)
+  // Quita un producto del carrito por su nombre.
+  // Si el producto no existe, lanza un Error cuyo mensaje
+  // contiene 'no está en el carrito'.
+  // Iteración 5: implementación inicial con findIndex y splice.
+  // ----------------------------------------------------------
+  eliminar(nombre) {
+    const indice = this.productos.findIndex((p) => p.nombre === nombre);
+
+    if (indice === -1) {
+      throw new Error(`El producto "${nombre}" no está en el carrito`);
+    }
+
+    this.productos.splice(indice, 1);
   }
 
   // ----------------------------------------------------------
