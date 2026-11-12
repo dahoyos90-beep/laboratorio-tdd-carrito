@@ -1,7 +1,7 @@
 // ============================================================
 // ARCHIVO: test/carrito.test.js
 // PROPÓSITO: Pruebas unitarias del carrito de compras (TDD).
-// ESTADO ACTUAL: Iteración 7 — ROJO (las pruebas nuevas deben fallar).
+// ESTADO ACTUAL: Reto A — ROJO (la prueba nueva debe fallar).
 // ============================================================
 
 // --- Importación de herramientas de prueba nativas de Node.js ---
@@ -13,7 +13,7 @@ import { Carrito } from '../src/carrito.js';
 
 // ============================================================
 // GRUPO PRINCIPAL: Carrito de compras
-// Contiene todas las iteraciones del taller.
+// Contiene todas las iteraciones del taller y los retos.
 // ============================================================
 describe('Carrito de compras', () => {
   // Variable que se reinicia antes de cada prueba para evitar
@@ -162,24 +162,12 @@ describe('Carrito de compras', () => {
   });
 
   // ============================================================
-  // ITERACIÓN 7: IVA Y TOTAL A PAGAR  [ESTADO: ROJO]
-  // Requisito: el IVA es del 19 % y se calcula sobre el subtotal
-  // menos el descuento. El total es esa base más el IVA.
-  //
-  // RESULTADO ESPERADO AL EJECUTAR npm test:
-  //   ✖ el IVA es el 19 % del subtotal cuando no hay cupón
-  //   ✖ el IVA se calcula sobre el valor con descuento
-  //   ✖ un carrito vacío tiene total 0
-  //   tests 17 | pass 14 | fail 3
-  //
-  // ERRORES ESPERADOS:
-  //   TypeError: carrito.iva is not a function (2 veces)
-  //   TypeError: carrito.total is not a function (1 vez)
+  // ITERACIÓN 7: IVA Y TOTAL A PAGAR  [ESTADO: VERDE]
+  // RESULTADO ESPERADO: tests 17 | pass 17 | fail 0
   // ============================================================
   describe('Iteración 7: IVA y total a pagar', () => {
     // Prueba 7.1: sin cupón, el IVA es el 19 % del subtotal
     // y el total es subtotal + IVA.
-    // Ejemplo: 2 × 50.000 = 100.000; IVA 19.000; total 119.000.
     test('el IVA es el 19 % del subtotal cuando no hay cupón', () => {
       carrito.agregar('Mouse', 50000, 2);
 
@@ -189,8 +177,6 @@ describe('Carrito de compras', () => {
 
     // Prueba 7.2: con cupón, el IVA se calcula sobre la base
     // gravable (subtotal - descuento).
-    // Ejemplo: 2 × 50.000 = 100.000; DESC10 = 10.000;
-    // base = 90.000; IVA 17.100; total 107.100.
     test('el IVA se calcula sobre el valor con descuento', () => {
       carrito.agregar('Mouse', 50000, 2);
       carrito.aplicarCupon('DESC10');
@@ -206,6 +192,34 @@ describe('Carrito de compras', () => {
   });
 
   // ============================================================
-  // (Fin del taller: 17 pruebas en total)
+  // RETO A: RESUMEN DE LA COMPRA  [ESTADO: ROJO]
+  // Requisito: resumen() devuelve un objeto con subtotal,
+  // descuento, iva y total. Se usa assert.deepEqual para
+  // comparar el objeto completo.
+  //
+  // RESULTADO ESPERADO AL EJECUTAR npm test:
+  //   ✖ resumen devuelve todos los valores de la compra
+  //   tests 18 | pass 17 | fail 1
+  //
+  // ERROR ESPERADO:
+  //   TypeError: carrito.resumen is not a function
+  // ============================================================
+  describe('Reto A: resumen de la compra', () => {
+    // Prueba A.1: resumen() devuelve los 4 valores de la compra.
+    test('resumen devuelve todos los valores de la compra', () => {
+      carrito.agregar('Mouse', 50000, 2);
+      carrito.aplicarCupon('DESC10');
+
+      assert.deepEqual(carrito.resumen(), {
+        subtotal: 100000,
+        descuento: 10000,
+        iva: 17100,
+        total: 107100,
+      });
+    });
+  });
+
+  // ============================================================
+  // (Aquí se pegarán los siguientes retos)
   // ============================================================
 });
