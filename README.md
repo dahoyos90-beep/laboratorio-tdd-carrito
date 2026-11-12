@@ -3,9 +3,9 @@
 <!-- ============================================================
      DESCRIPCIÓN
      ============================================================ -->
-Proyecto de aprendizaje de **Desarrollo Guiado por Pruebas (TDD)** en JavaScript puro, usando únicamente Node.js y su ejecutor de pruebas nativo (`node:test`). Se construye, paso a paso y guiado por pruebas, la lógica de un carrito de compras: agregar productos, eliminarlos, aplicar cupones de descuento y calcular el IVA.
+Proyecto de aprendizaje de **Desarrollo Guiado por Pruebas (TDD)** en JavaScript puro, usando únicamente Node.js y su ejecutor de pruebas nativo (`node:test`). Se construye, paso a paso y guiado por pruebas, la lógica de un carrito de compras: agregar productos, eliminarlos, aplicar cupones de descuento, calcular el IVA, el envío y el total a pagar.
 
-El proyecto aplica el ciclo **Rojo → Verde → Refactor** en 7 iteraciones, con una rama de Git por iteración y commits detallados en cada paso.
+El proyecto aplica el ciclo **Rojo → Verde → Refactor** en 7 iteraciones base, más 5 retos adicionales (A–E), con una rama de Git por cada iteración/reto y commits detallados en cada paso.
 
 <!-- ============================================================
      REQUISITOS
