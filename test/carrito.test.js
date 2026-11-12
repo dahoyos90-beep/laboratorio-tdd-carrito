@@ -1,7 +1,7 @@
 // ============================================================
 // ARCHIVO: test/carrito.test.js
 // PROPÓSITO: Pruebas unitarias del carrito de compras (TDD).
-// ESTADO ACTUAL: Reto A — ROJO (la prueba nueva debe fallar).
+// ESTADO ACTUAL: Reto B — ROJO (las pruebas nuevas deben fallar).
 // ============================================================
 
 // --- Importación de herramientas de prueba nativas de Node.js ---
@@ -192,17 +192,8 @@ describe('Carrito de compras', () => {
   });
 
   // ============================================================
-  // RETO A: RESUMEN DE LA COMPRA  [ESTADO: ROJO]
-  // Requisito: resumen() devuelve un objeto con subtotal,
-  // descuento, iva y total. Se usa assert.deepEqual para
-  // comparar el objeto completo.
-  //
-  // RESULTADO ESPERADO AL EJECUTAR npm test:
-  //   ✖ resumen devuelve todos los valores de la compra
-  //   tests 18 | pass 17 | fail 1
-  //
-  // ERROR ESPERADO:
-  //   TypeError: carrito.resumen is not a function
+  // RETO A: RESUMEN DE LA COMPRA  [ESTADO: VERDE]
+  // RESULTADO ESPERADO: tests 18 | pass 18 | fail 0
   // ============================================================
   describe('Reto A: resumen de la compra', () => {
     // Prueba A.1: resumen() devuelve los 4 valores de la compra.
@@ -216,6 +207,59 @@ describe('Carrito de compras', () => {
         iva: 17100,
         total: 107100,
       });
+    });
+  });
+
+  // ============================================================
+  // RETO B: COSTO DE ENVÍO  [ESTADO: ROJO]
+  // Requisito: el envío cuesta $12.000, pero es gratis si la
+  // base gravable es >= $150.000. El envío no paga IVA y se
+  // incluye en el total.
+  //
+  // RESULTADO ESPERADO AL EJECUTAR npm test:
+  //   ✖ el envío cuesta 12.000 cuando la base es menor a 150.000
+  //   ✖ el envío es gratis cuando la base es exactamente 150.000
+  //   ✖ el envío es gratis cuando la base supera 150.000
+  //   ✖ el total incluye el envío sin IVA
+  //   tests 22 | pass 18 | fail 4
+  //
+  // ERROR ESPERADO:
+  //   TypeError: carrito.envio is not a function
+  // ============================================================
+  describe('Reto B: costo de envío', () => {
+    // Prueba B.1: base gravable menor a 150.000 → envío 12.000.
+    test('el envío cuesta 12.000 cuando la base es menor a 150.000', () => {
+      carrito.agregar('Mouse', 100000, 1);
+
+      assert.equal(carrito.baseGravable(), 100000);
+      assert.equal(carrito.envio(), 12000);
+    });
+
+    // Prueba B.2: base exactamente 150.000 → envío gratis (límite).
+    test('el envío es gratis cuando la base es exactamente 150.000', () => {
+      carrito.agregar('Teclado', 150000, 1);
+
+      assert.equal(carrito.baseGravable(), 150000);
+      assert.equal(carrito.envio(), 0);
+    });
+
+    // Prueba B.3: base mayor a 150.000 → envío gratis.
+    test('el envío es gratis cuando la base supera 150.000', () => {
+      carrito.agregar('Monitor', 200000, 1);
+
+      assert.equal(carrito.baseGravable(), 200000);
+      assert.equal(carrito.envio(), 0);
+    });
+
+    // Prueba B.4: el total incluye el envío sin IVA.
+    // 1 × 100.000 = 100.000; IVA 19.000; envío 12.000;
+    // total = 100.000 + 19.000 + 12.000 = 131.000.
+    test('el total incluye el envío sin IVA', () => {
+      carrito.agregar('Mouse', 100000, 1);
+
+      assert.equal(carrito.iva(), 19000);
+      assert.equal(carrito.envio(), 12000);
+      assert.equal(carrito.total(), 131000);
     });
   });
 
