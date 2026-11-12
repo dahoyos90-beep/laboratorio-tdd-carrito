@@ -1,7 +1,7 @@
 // ============================================================
 // ARCHIVO: src/carrito.js
 // PROPÓSITO: Código de producción del carrito de compras (TDD).
-// ESTADO ACTUAL: Iteración 2 — VERDE (lógica real con arreglo).
+// ESTADO ACTUAL: Iteración 3 — VERDE (acumula producto repetido).
 // ============================================================
 
 // Laboratorio TDD: carrito de compras
@@ -15,21 +15,22 @@
 //   - cantidadDeItems() y subtotal() devolvían 0 (fake it).
 //
 // ITERACIÓN 2: AGREGAR PRODUCTOS  [ESTADO: VERDE]
-// Requisito: al agregar productos, el carrito cuenta las
-// unidades y calcula el subtotal (precio × cantidad).
-// Si no se indica la cantidad, se asume 1.
+//   - constructor con this.productos = [].
+//   - agregar() inserta en el arreglo.
+//   - cantidadDeItems() y subtotal() usan reduce.
 //
-// TÉCNICA: "Triangulación". Las pruebas exigen lógica real,
-// así que reemplazamos los valores fijos por:
-//   - un arreglo this.productos que guarda cada producto.
-//   - reduce para sumar cantidades y precios × cantidad.
+// ITERACIÓN 3: PRODUCTO REPETIDO  [ESTADO: VERDE]
+// Requisito: si se agrega un producto que ya está en el
+// carrito, se acumula la cantidad en la misma línea.
+//
+// TÉCNICA: En agregar(), se busca el producto existente con
+// .find() por nombre. Si existe, se suma la cantidad; si no,
+// se inserta uno nuevo. Así no se duplican líneas.
 //
 // RESULTADO ESPERADO AL EJECUTAR npm test:
-//   ✔ agregar un producto actualiza cantidad y subtotal
-//   ✔ agregar varios productos suma todos los subtotales
-//   ✔ si no se indica cantidad, se agrega una unidad
-//   ✔ (las 2 pruebas de la Iteración 1 siguen en verde)
-//   tests 5 | pass 5 | fail 0
+//   ✔ agregar el mismo producto acumula la cantidad en una sola línea
+//   ✔ (las 5 pruebas anteriores siguen en verde)
+//   tests 6 | pass 6 | fail 0
 // ============================================================
 export class Carrito {
   // ----------------------------------------------------------
@@ -43,13 +44,20 @@ export class Carrito {
 
   // ----------------------------------------------------------
   // MÉTODO: agregar(nombre, precio, cantidad)
-  // Agrega un producto al carrito con su nombre, precio y
-  // cantidad. Si no se indica cantidad, se asume 1.
-  // Iteración 2: solo inserta en el arreglo (sin validaciones
-  // ni acumulación; eso vendrá en iteraciones posteriores).
+  // Agrega un producto al carrito. Si no se indica cantidad,
+  // se asume 1.
+  // Iteración 3: antes de insertar, busca si el producto ya
+  // existe por nombre. Si existe, acumula la cantidad en la
+  // misma línea; si no, lo inserta como nuevo.
   // ----------------------------------------------------------
   agregar(nombre, precio, cantidad = 1) {
-    this.productos.push({ nombre, precio, cantidad });
+    const existente = this.productos.find((p) => p.nombre === nombre);
+
+    if (existente) {
+      existente.cantidad += cantidad;
+    } else {
+      this.productos.push({ nombre, precio, cantidad });
+    }
   }
 
   // ----------------------------------------------------------

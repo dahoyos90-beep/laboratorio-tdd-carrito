@@ -1,7 +1,7 @@
 // ============================================================
 // ARCHIVO: test/carrito.test.js
 // PROPÓSITO: Pruebas unitarias del carrito de compras (TDD).
-// ESTADO ACTUAL: Iteración 2 — ROJO (las pruebas nuevas deben fallar).
+// ESTADO ACTUAL: Iteración 3 — ROJO (la prueba nueva debe fallar).
 // ============================================================
 
 // --- Importación de herramientas de prueba nativas de Node.js ---
@@ -45,19 +45,12 @@ describe('Carrito de compras', () => {
   });
 
   // ============================================================
-  // ITERACIÓN 2: AGREGAR PRODUCTOS  [ESTADO: ROJO]
+  // ITERACIÓN 2: AGREGAR PRODUCTOS  [ESTADO: VERDE]
   // Requisito: al agregar productos, el carrito cuenta las
   // unidades y calcula el subtotal (precio × cantidad).
   // Si no se indica la cantidad, se asume 1.
   //
-  // RESULTADO ESPERADO AL EJECUTAR npm test:
-  //   ✔ agregar un producto actualiza cantidad y subtotal  (FALLARÁ)
-  //   ✔ agregar varios productos suma todos los subtotales (FALLARÁ)
-  //   ✔ si no se indica cantidad, se agrega una unidad      (FALLARÁ)
-  //   tests 5 | pass 2 | fail 3
-  //
-  // ERROR ESPERADO:
-  //   TypeError: carrito.agregar is not a function
+  // RESULTADO ESPERADO: tests 5 | pass 5 | fail 0
   // ============================================================
   describe('Iteración 2: agregar productos', () => {
     // Prueba 2.1: agregar un producto actualiza cantidad y subtotal.
@@ -82,6 +75,34 @@ describe('Carrito de compras', () => {
       carrito.agregar('Audifonos', 80000);
 
       assert.equal(carrito.cantidadDeItems(), 1);
+    });
+  });
+
+  // ============================================================
+  // ITERACIÓN 3: PRODUCTO REPETIDO  [ESTADO: ROJO]
+  // Requisito: si se agrega un producto que ya está en el
+  // carrito, se acumula la cantidad en la misma línea.
+  //
+  // RESULTADO ESPERADO AL EJECUTAR npm test:
+  //   ✖ agregar el mismo producto acumula la cantidad en una sola línea
+  //   tests 6 | pass 5 | fail 1
+  //
+  // ERROR ESPERADO:
+  //   AssertionError [ERR_ASSERTION]: Expected values to be
+  //   strictly equal: 2 != 1
+  //   (porque el carrito tendrá 2 líneas de "Mouse" y la prueba
+  //   espera 1).
+  // ============================================================
+  describe('Iteración 3: producto repetido', () => {
+    // Prueba 3.1: agregar el mismo producto acumula la cantidad
+    // en una sola línea (no duplica el producto).
+    test('agregar el mismo producto acumula la cantidad en una sola línea', () => {
+      carrito.agregar('Mouse', 50000, 1);
+      carrito.agregar('Mouse', 50000, 2);
+
+      assert.equal(carrito.productos.length, 1);
+      assert.equal(carrito.cantidadDeItems(), 3);
+      assert.equal(carrito.subtotal(), 150000);
     });
   });
 
