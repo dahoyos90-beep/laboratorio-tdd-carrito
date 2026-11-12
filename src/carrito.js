@@ -1,7 +1,7 @@
 // ============================================================
 // ARCHIVO: src/carrito.js
 // PROPÓSITO: Código de producción del carrito de compras (TDD).
-// ESTADO ACTUAL: Reto B — VERDE (agrega costo de envío).
+// ESTADO ACTUAL: Reto C — VERDE (agrega actualizarCantidad).
 // ============================================================
 
 // Laboratorio TDD: carrito de compras
@@ -9,13 +9,11 @@
 
 // ============================================================
 // CONSTANTE: IVA
-// Porcentaje de IVA aplicable en Colombia.
 // ============================================================
 const IVA = 0.19;
 
 // ============================================================
 // CONSTANTE: CUPONES
-// Diccionario de cupones válidos y su porcentaje de descuento.
 // ============================================================
 const CUPONES = {
   DESC10: 0.10,
@@ -45,35 +43,32 @@ const ENVIO_GRATIS_DESDE = 150000;
 // ITERACIÓN 5: ELIMINAR PRODUCTOS  [ESTADO: VERDE]
 // ITERACIÓN 6: CUPONES DE DESCUENTO  [ESTADO: VERDE]
 // ITERACIÓN 7: IVA Y TOTAL A PAGAR  [ESTADO: VERDE]
-//   - Incluye refactor: baseGravable().
-//
 // RETO A: RESUMEN DE LA COMPRA  [ESTADO: VERDE]
-//   - resumen() devuelve { subtotal, descuento, iva, total }.
-//
 // RETO B: COSTO DE ENVÍO  [ESTADO: VERDE]
-// Requisito: el envío cuesta $12.000, pero es gratis si la
-// base gravable es >= $150.000. El envío no paga IVA y se
-// incluye en el total.
 //
-// TÉCNICA:
-//   - envio(): si baseGravable() >= ENVIO_GRATIS_DESDE → 0;
-//     si no → ENVIO.
-//   - total(): baseGravable() + iva() + envio().
+// RETO C: ACTUALIZAR CANTIDAD  [ESTADO: VERDE]
+// Requisito: actualizarCantidad(nombre, nueva).
+//   - Si nueva < 0 → lanza error con /cantidad/.
+//   - Si el producto no existe → lanza error con /no está en el carrito/.
+//   - Si nueva === 0 → elimina el producto.
+//   - Si nueva > 0 → actualiza la cantidad.
 //
-// CASO LÍMITE: base gravable exactamente 150.000 → envío 0.
+// TÉCNICA: Se valida primero la cantidad negativa, luego se
+// busca el producto con findIndex. Si no existe, se lanza error.
+// Si existe y nueva === 0, se elimina con splice. Si nueva > 0,
+// se actualiza la cantidad.
 //
 // RESULTADO ESPERADO AL EJECUTAR npm test:
-//   ✔ el envío cuesta 12.000 cuando la base es menor a 150.000
-//   ✔ el envío es gratis cuando la base es exactamente 150.000
-//   ✔ el envío es gratis cuando la base supera 150.000
-//   ✔ el total incluye el envío sin IVA
-//   ✔ (las 18 pruebas anteriores siguen en verde)
-//   tests 22 | pass 22 | fail 0
+//   ✔ actualiza la cantidad de un producto existente
+//   ✔ si la nueva cantidad es 0, elimina el producto
+//   ✔ si la nueva cantidad es negativa, lanza un error
+//   ✔ si el producto no existe, lanza un error
+//   ✔ (las 22 pruebas anteriores siguen en verde)
+//   tests 26 | pass 26 | fail 0
 // ============================================================
 export class Carrito {
   // ----------------------------------------------------------
   // CONSTRUCTOR
-  // Inicializa el arreglo de productos y el cupón aplicado.
   // ----------------------------------------------------------
   constructor() {
     this.productos = [];
@@ -82,7 +77,6 @@ export class Carrito {
 
   // ----------------------------------------------------------
   // MÉTODO: agregar(nombre, precio, cantidad)
-  // Agrega un producto con validaciones y acumulación.
   // (Iteraciones 2, 3 y 4)
   // ----------------------------------------------------------
   agregar(nombre, precio, cantidad = 1) {
@@ -105,7 +99,6 @@ export class Carrito {
 
   // ----------------------------------------------------------
   // MÉTODO: eliminar(nombre)
-  // Quita un producto del carrito por su nombre.
   // (Iteración 5)
   // ----------------------------------------------------------
   eliminar(nombre) {
@@ -119,8 +112,38 @@ export class Carrito {
   }
 
   // ----------------------------------------------------------
+  // MÉTODO: actualizarCantidad(nombre, nueva)
+  // NUEVO (Reto C): actualiza la cantidad de un producto.
+  //   - nueva < 0 → error con /cantidad/.
+  //   - producto inexistente → error con /no está en el carrito/.
+  //   - nueva === 0 → elimina el producto.
+  //   - nueva > 0 → actualiza la cantidad.
+  // ----------------------------------------------------------
+  actualizarCantidad(nombre, nueva) {
+    // Validación de cantidad negativa.
+    if (!Number.isInteger(nueva) || nueva < 0) {
+      throw new Error('La cantidad debe ser un entero mayor o igual a cero');
+    }
+
+    // Buscar el producto por nombre.
+    const indice = this.productos.findIndex((p) => p.nombre === nombre);
+
+    if (indice === -1) {
+      throw new Error(`El producto "${nombre}" no está en el carrito`);
+    }
+
+    // Si la nueva cantidad es 0, eliminar el producto.
+    if (nueva === 0) {
+      this.productos.splice(indice, 1);
+      return;
+    }
+
+    // Si es positiva, actualizar la cantidad.
+    this.productos[indice].cantidad = nueva;
+  }
+
+  // ----------------------------------------------------------
   // MÉTODO: cantidadDeItems()
-  // Devuelve el número total de unidades en el carrito.
   // (Iteración 2)
   // ----------------------------------------------------------
   cantidadDeItems() {
@@ -129,7 +152,6 @@ export class Carrito {
 
   // ----------------------------------------------------------
   // MÉTODO: subtotal()
-  // Devuelve la suma de precio × cantidad de los productos.
   // (Iteración 2)
   // ----------------------------------------------------------
   subtotal() {
@@ -138,7 +160,6 @@ export class Carrito {
 
   // ----------------------------------------------------------
   // MÉTODO: aplicarCupon(codigo)
-  // Guarda el código de cupón si es válido.
   // (Iteración 6)
   // ----------------------------------------------------------
   aplicarCupon(codigo) {
@@ -150,7 +171,6 @@ export class Carrito {
 
   // ----------------------------------------------------------
   // MÉTODO: descuento()
-  // Devuelve el valor del descuento en pesos colombianos.
   // (Iteración 6)
   // ----------------------------------------------------------
   descuento() {
@@ -160,7 +180,6 @@ export class Carrito {
 
   // ----------------------------------------------------------
   // MÉTODO: baseGravable()
-  // Devuelve subtotal - descuento.
   // (Refactor Iteración 7)
   // ----------------------------------------------------------
   baseGravable() {
@@ -169,7 +188,6 @@ export class Carrito {
 
   // ----------------------------------------------------------
   // MÉTODO: iva()
-  // Devuelve el IVA (19 %) sobre la base gravable.
   // (Iteración 7)
   // ----------------------------------------------------------
   iva() {
@@ -178,8 +196,7 @@ export class Carrito {
 
   // ----------------------------------------------------------
   // MÉTODO: envio()
-  // NUEVO (Reto B): devuelve 0 si la base gravable es >= 150.000;
-  // si no, devuelve ENVIO (12.000).
+  // (Reto B)
   // ----------------------------------------------------------
   envio() {
     return this.baseGravable() >= ENVIO_GRATIS_DESDE ? 0 : ENVIO;
@@ -187,8 +204,6 @@ export class Carrito {
 
   // ----------------------------------------------------------
   // MÉTODO: total()
-  // Devuelve el total a pagar: base gravable + IVA + envío.
-  // El envío no paga IVA.
   // (Iteración 7 + Reto B)
   // ----------------------------------------------------------
   total() {
@@ -197,7 +212,6 @@ export class Carrito {
 
   // ----------------------------------------------------------
   // MÉTODO: resumen()
-  // Devuelve un objeto con los 4 valores de la compra.
   // (Reto A)
   // ----------------------------------------------------------
   resumen() {
