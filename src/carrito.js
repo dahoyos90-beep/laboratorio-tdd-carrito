@@ -1,7 +1,7 @@
 // ============================================================
 // ARCHIVO: src/carrito.js
 // PROPÓSITO: Código de producción del carrito de compras (TDD).
-// ESTADO ACTUAL: Reto D — VERDE (cupones flexibles).
+// ESTADO ACTUAL: Reto E — VERDE (cupón de valor fijo).
 // ============================================================
 
 // Laboratorio TDD: carrito de compras
@@ -14,10 +14,18 @@ const IVA = 0.19;
 
 // ============================================================
 // CONSTANTE: CUPONES
+// Diccionario de cupones válidos. Cada cupón tiene:
+//   - tipo: 'porcentaje' | 'fijo'
+//   - valor: el porcentaje (0.10, 0.20) o el monto fijo (30000)
+//
+// El cambio de estructura (objeto con tipo y valor) permite
+// soportar cupones de porcentaje y de valor fijo en el mismo
+// diccionario, sin lógica condicional dispersa.
 // ============================================================
 const CUPONES = {
-  DESC10: 0.10,
-  DESC20: 0.20,
+  DESC10: { tipo: 'porcentaje', valor: 0.10 },
+  DESC20: { tipo: 'porcentaje', valor: 0.20 },
+  MENO530K: { tipo: 'fijo', valor: 30000 },
 };
 
 // ============================================================
@@ -44,21 +52,25 @@ const ENVIO_GRATIS_DESDE = 150000;
 // RETO A: RESUMEN DE LA COMPRA  [ESTADO: VERDE]
 // RETO B: COSTO DE ENVÍO  [ESTADO: VERDE]
 // RETO C: ACTUALIZAR CANTIDAD  [ESTADO: VERDE]
-//
 // RETO D: CUPONES FLEXIBLES  [ESTADO: VERDE]
-// Requisito: 'desc10' (minúsculas) y ' DESC10 ' (con espacios)
-// deben funcionar igual que 'DESC10'.
 //
-// TÉCNICA: En aplicarCupon(), se normaliza el código con
-// .trim().toUpperCase() antes de buscar en CUPONES. Así
-// cualquier combinación de mayúsculas/minúsculas y espacios
-// se convierte al formato canónico (DESC10, DESC20).
+// RETO E: CUPÓN DE VALOR FIJO  [ESTADO: VERDE]
+// Requisito: MENO530K resta $30.000 fijos, pero el descuento
+// nunca puede dejar la base en negativo.
+//
+// TÉCNICA:
+//   - CUPONES ahora tiene { tipo, valor } por cupón.
+//   - descuento() calcula según el tipo:
+//       porcentaje → Math.round(subtotal * valor)
+//       fijo       → Math.min(valor, subtotal)
+//   - En ambos casos el descuento nunca supera el subtotal.
 //
 // RESULTADO ESPERADO AL EJECUTAR npm test:
-//   ✔ acepta el cupón en minúsculas
-//   ✔ acepta el cupón con espacios alrededor
-//   ✔ (las 26 pruebas anteriores siguen en verde)
-//   tests 28 | pass 28 | fail 0
+//   ✔ MENO530K resta 30.000 fijos
+//   ✔ MENO530K no deja la base en negativo
+//   ✔ MENO530K acepta minúsculas y espacios
+//   ✔ (las 28 pruebas anteriores siguen en verde)
+//   tests 31 | pass 31 | fail 0
 // ============================================================
 export class Carrito {
   // ----------------------------------------------------------
@@ -147,8 +159,6 @@ export class Carrito {
   // ----------------------------------------------------------
   // MÉTODO: aplicarCupon(codigo)
   // (Iteración 6 + Reto D)
-  // Normaliza el código con trim().toUpperCase() antes de
-  // buscar en CUPONES. Así 'desc10' y ' DESC10 ' funcionan.
   // ----------------------------------------------------------
   aplicarCupon(codigo) {
     const normalizado = String(codigo).trim().toUpperCase();
@@ -162,11 +172,24 @@ export class Carrito {
 
   // ----------------------------------------------------------
   // MÉTODO: descuento()
-  // (Iteración 6)
+  // (Iteración 6 + Reto E)
+  // Calcula el descuento según el tipo de cupón:
+  //   - porcentaje: Math.round(subtotal * valor)
+  //   - fijo:       Math.min(valor, subtotal) (no deja base negativa)
+  // En ambos casos el descuento nunca supera el subtotal.
   // ----------------------------------------------------------
   descuento() {
     if (!this.cupon) return 0;
-    return Math.round(this.subtotal() * CUPONES[this.cupon]);
+
+    const { tipo, valor } = CUPONES[this.cupon];
+    const subtotal = this.subtotal();
+
+    if (tipo === 'porcentaje') {
+      return Math.min(Math.round(subtotal * valor), subtotal);
+    }
+
+    // tipo === 'fijo'
+    return Math.min(valor, subtotal);
   }
 
   // ----------------------------------------------------------
