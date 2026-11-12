@@ -1,7 +1,7 @@
 // ============================================================
 // ARCHIVO: test/carrito.test.js
 // PROPÓSITO: Pruebas unitarias del carrito de compras (TDD).
-// ESTADO ACTUAL: Reto E — ROJO (las pruebas nuevas deben fallar).
+// ESTADO ACTUAL: Proyecto completo — 31/31 en verde (ajuste de envío vacío).
 // ============================================================
 
 import { describe, test, beforeEach } from 'node:test';
@@ -148,8 +148,9 @@ describe('Carrito de compras', () => {
       assert.equal(carrito.total(), 119100);
     });
 
-    test('un carrito vacío tiene total 12000 (solo envío)', () => {
-      assert.equal(carrito.total(), 12000);
+    // PRUEBA AJUSTADA: Un carrito vacío ahora tiene total 0 (sin envío).
+    test('un carrito vacío tiene total 0', () => {
+      assert.equal(carrito.total(), 0);
     });
   });
 
@@ -263,23 +264,9 @@ describe('Carrito de compras', () => {
   });
 
   // ============================================================
-  // RETO E: CUPÓN DE VALOR FIJO  [ESTADO: ROJO]
-  // Requisito: el cupón MENO530K resta $30.000 fijos, pero
-  // el descuento nunca puede dejar la base en negativo.
-  //
-  // RESULTADO ESPERADO AL EJECUTAR npm test:
-  //   ✖ MENO530K resta 30.000 fijos
-  //   ✖ MENO530K no deja la base en negativo
-  //   ✖ MENO530K acepta minúsculas y espacios
-  //   tests 31 | pass 28 | fail 3
-  //
-  // ERROR ESPERADO:
-  //   Error: El cupón "MENO530K" no es válido
-  //   (porque MENO530K no está en CUPONES todavía).
+  // RETO E: CUPÓN DE VALOR FIJO  [ESTADO: VERDE]
   // ============================================================
   describe('Reto E: cupón de valor fijo', () => {
-    // Prueba E.1: MENO530K resta 30.000 fijos.
-    // 1 × 100.000 = 100.000; descuento 30.000.
     test('MENO530K resta 30.000 fijos', () => {
       carrito.agregar('Mouse', 100000, 1);
       carrito.aplicarCupon('MENO530K');
@@ -287,8 +274,6 @@ describe('Carrito de compras', () => {
       assert.equal(carrito.descuento(), 30000);
     });
 
-    // Prueba E.2: MENO530K no deja la base en negativo.
-    // 1 × 20.000 = 20.000; descuento debe ser 20.000 (no 30.000).
     test('MENO530K no deja la base en negativo', () => {
       carrito.agregar('Mouse', 20000, 1);
       carrito.aplicarCupon('MENO530K');
@@ -296,7 +281,6 @@ describe('Carrito de compras', () => {
       assert.equal(carrito.descuento(), 20000);
     });
 
-    // Prueba E.3: MENO530K acepta minúsculas y espacios.
     test('MENO530K acepta minúsculas y espacios', () => {
       carrito.agregar('Mouse', 100000, 1);
       carrito.aplicarCupon(' meno530k ');
@@ -304,8 +288,4 @@ describe('Carrito de compras', () => {
       assert.equal(carrito.descuento(), 30000);
     });
   });
-
-  // ============================================================
-  // (Aquí se pegarán los siguientes retos)
-  // ============================================================
 });
