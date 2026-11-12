@@ -1,7 +1,7 @@
 // ============================================================
 // ARCHIVO: test/carrito.test.js
 // PROPÓSITO: Pruebas unitarias del carrito de compras (TDD).
-// ESTADO ACTUAL: Iteración 3 — ROJO (la prueba nueva debe fallar).
+// ESTADO ACTUAL: Iteración 4 — ROJO (las pruebas nuevas deben fallar).
 // ============================================================
 
 // --- Importación de herramientas de prueba nativas de Node.js ---
@@ -79,19 +79,11 @@ describe('Carrito de compras', () => {
   });
 
   // ============================================================
-  // ITERACIÓN 3: PRODUCTO REPETIDO  [ESTADO: ROJO]
+  // ITERACIÓN 3: PRODUCTO REPETIDO  [ESTADO: VERDE]
   // Requisito: si se agrega un producto que ya está en el
   // carrito, se acumula la cantidad en la misma línea.
   //
-  // RESULTADO ESPERADO AL EJECUTAR npm test:
-  //   ✖ agregar el mismo producto acumula la cantidad en una sola línea
-  //   tests 6 | pass 5 | fail 1
-  //
-  // ERROR ESPERADO:
-  //   AssertionError [ERR_ASSERTION]: Expected values to be
-  //   strictly equal: 2 != 1
-  //   (porque el carrito tendrá 2 líneas de "Mouse" y la prueba
-  //   espera 1).
+  // RESULTADO ESPERADO: tests 6 | pass 6 | fail 0
   // ============================================================
   describe('Iteración 3: producto repetido', () => {
     // Prueba 3.1: agregar el mismo producto acumula la cantidad
@@ -103,6 +95,36 @@ describe('Carrito de compras', () => {
       assert.equal(carrito.productos.length, 1);
       assert.equal(carrito.cantidadDeItems(), 3);
       assert.equal(carrito.subtotal(), 150000);
+    });
+  });
+
+  // ============================================================
+  // ITERACIÓN 4: VALIDACIONES  [ESTADO: ROJO]
+  // Requisito: no se aceptan precios menores o iguales a 0,
+  // ni cantidades que no sean enteros positivos.
+  //
+  // RESULTADO ESPERADO AL EJECUTAR npm test:
+  //   ✖ no permite precios negativos o en cero
+  //   ✖ no permite cantidades en cero, negativas o decimales
+  //   tests 8 | pass 6 | fail 2
+  //
+  // ERROR ESPERADO:
+  //   AssertionError [ERR_ASSERTION]: Missing expected exception.
+  //   (la prueba esperaba un error, pero agregar() aceptó los
+  //   valores inválidos sin quejarse).
+  // ============================================================
+  describe('Iteración 4: validaciones', () => {
+    // Prueba 4.1: rechaza precios negativos o en cero.
+    test('no permite precios negativos o en cero', () => {
+      assert.throws(() => carrito.agregar('Mouse', -100, 1), /precio/);
+      assert.throws(() => carrito.agregar('Mouse', 0, 1), /precio/);
+    });
+
+    // Prueba 4.2: rechaza cantidades en cero, negativas o decimales.
+    test('no permite cantidades en cero, negativas o decimales', () => {
+      assert.throws(() => carrito.agregar('Mouse', 50000, 0), /cantidad/);
+      assert.throws(() => carrito.agregar('Mouse', 50000, -1), /cantidad/);
+      assert.throws(() => carrito.agregar('Mouse', 50000, 1.5), /cantidad/);
     });
   });
 

@@ -1,7 +1,7 @@
 // ============================================================
 // ARCHIVO: src/carrito.js
 // PROPÓSITO: Código de producción del carrito de compras (TDD).
-// ESTADO ACTUAL: Iteración 3 — VERDE (acumula producto repetido).
+// ESTADO ACTUAL: Iteración 4 — VERDE (agrega validaciones).
 // ============================================================
 
 // Laboratorio TDD: carrito de compras
@@ -20,17 +20,23 @@
 //   - cantidadDeItems() y subtotal() usan reduce.
 //
 // ITERACIÓN 3: PRODUCTO REPETIDO  [ESTADO: VERDE]
-// Requisito: si se agrega un producto que ya está en el
-// carrito, se acumula la cantidad en la misma línea.
+//   - agregar() busca con .find() y acumula cantidad si existe.
 //
-// TÉCNICA: En agregar(), se busca el producto existente con
-// .find() por nombre. Si existe, se suma la cantidad; si no,
-// se inserta uno nuevo. Así no se duplican líneas.
+// ITERACIÓN 4: VALIDACIONES  [ESTADO: VERDE]
+// Requisito: no se aceptan precios menores o iguales a 0,
+// ni cantidades que no sean enteros positivos.
+//
+// TÉCNICA: Al inicio de agregar(), se valida:
+//   - precio: debe ser número y > 0. Si no, throw Error con 'precio'.
+//   - cantidad: debe ser entero y > 0. Si no, throw Error con 'cantidad'.
+// Las pruebas usan assert.throws(fn, /precio/) y /cantidad/ para
+// verificar que el mensaje del error contenga esa palabra.
 //
 // RESULTADO ESPERADO AL EJECUTAR npm test:
-//   ✔ agregar el mismo producto acumula la cantidad en una sola línea
-//   ✔ (las 5 pruebas anteriores siguen en verde)
-//   tests 6 | pass 6 | fail 0
+//   ✔ no permite precios negativos o en cero
+//   ✔ no permite cantidades en cero, negativas o decimales
+//   ✔ (las 6 pruebas anteriores siguen en verde)
+//   tests 8 | pass 8 | fail 0
 // ============================================================
 export class Carrito {
   // ----------------------------------------------------------
@@ -46,11 +52,29 @@ export class Carrito {
   // MÉTODO: agregar(nombre, precio, cantidad)
   // Agrega un producto al carrito. Si no se indica cantidad,
   // se asume 1.
-  // Iteración 3: antes de insertar, busca si el producto ya
-  // existe por nombre. Si existe, acumula la cantidad en la
-  // misma línea; si no, lo inserta como nuevo.
+  //
+  // Iteración 4: antes de insertar o acumular, valida:
+  //   - precio debe ser número y mayor que 0.
+  //   - cantidad debe ser entero y mayor que 0.
+  // Si alguna validación falla, lanza un Error con mensaje
+  // que contiene 'precio' o 'cantidad' (para que las pruebas
+  // con assert.throws(fn, /regex/) lo detecten).
+  //
+  // Iteración 3: si el producto ya existe por nombre, acumula
+  // la cantidad; si no, lo inserta como nuevo.
   // ----------------------------------------------------------
   agregar(nombre, precio, cantidad = 1) {
+    // --- Validación de precio (Iteración 4) ---
+    if (typeof precio !== 'number' || precio <= 0) {
+      throw new Error('El precio debe ser mayor que cero');
+    }
+
+    // --- Validación de cantidad (Iteración 4) ---
+    if (!Number.isInteger(cantidad) || cantidad <= 0) {
+      throw new Error('La cantidad debe ser un entero positivo');
+    }
+
+    // --- Acumulación o inserción (Iteración 3) ---
     const existente = this.productos.find((p) => p.nombre === nombre);
 
     if (existente) {
