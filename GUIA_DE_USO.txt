@@ -1,0 +1,154 @@
+================================================================================
+GUÍA DE USO, DESPLIEGUE Y PRUEBAS - LABORATORIO TDD CARRITO DE COMPRAS
+================================================================================
+Repositorio: https://github.com/dahoyos90-beep/laboratorio-tdd-carrito
+
+Esta guía explica paso a paso cómo arrancar el proyecto, tanto su lógica 
+(backend/pruebas) como su interfaz gráfica (frontend), y cómo realizar 
+las pruebas manuales para verificar que todo funcione correctamente.
+
+--------------------------------------------------------------------------------
+1. REQUISITOS PREVIOS
+--------------------------------------------------------------------------------
+- Tener instalado Node.js (versión 20 o superior).
+  Puedes verificarlo abriendo una terminal y escribiendo: node -v
+- Tener instalado Git (opcional, solo si vas a clonar el repositorio).
+- Un navegador web moderno (Chrome, Edge, Firefox).
+- Un editor de código (recomendado: Visual Studio Code).
+
+
+--------------------------------------------------------------------------------
+2. INSTALACIÓN INICIAL (Solo la primera vez)
+--------------------------------------------------------------------------------
+Abre una terminal en la carpeta raíz del proyecto y ejecuta:
+
+  npm install
+
+* Esto descargará la única dependencia de desarrollo necesaria (Vite) 
+  para poder arrancar la interfaz gráfica.
+
+
+--------------------------------------------------------------------------------
+3. ¿CÓMO ARRANCAR LA INTERFAZ GRÁFICA (FRONTEND)?
+--------------------------------------------------------------------------------
+La interfaz gráfica te permite interactuar visualmente con el carrito.
+
+Paso a paso:
+1. Abre una terminal en la raíz del proyecto.
+2. Ejecuta el comando:
+   
+   npm run dev
+
+3. La terminal te mostrará una URL local, normalmente:
+   http://localhost:5173
+
+4. Abre esa URL en tu navegador web.
+5. Para detener el servidor, ve a la terminal y presiona Ctrl + C.
+
+
+--------------------------------------------------------------------------------
+4. ¿CÓMO EJECUTAR LAS PRUEBAS AUTOMATIZADAS (LÓGICA TDD)?
+--------------------------------------------------------------------------------
+Este proyecto fue construido con TDD, por lo que tiene 31 pruebas unitarias 
+que verifican que la lógica del carrito funcione a la perfección.
+
+Paso a paso:
+1. Abre una nueva terminal (puedes dejar el frontend corriendo en otra).
+2. Ejecuta el comando:
+   
+   npm test
+
+3. Verás un resumen. El resultado esperado es:
+   tests 31 | pass 31 | fail 0
+
+* Si quieres que las pruebas se ejecuten automáticamente cada vez que 
+  guardes un archivo, puedes usar: npm run test:watch
+
+
+--------------------------------------------------------------------------------
+5. MANUAL DE PRUEBAS MANUALES (¿QUÉ ESCRIBIR Y QUÉ ESPERAR?)
+--------------------------------------------------------------------------------
+Una vez que tengas la interfaz abierta en el navegador (http://localhost:5173),
+realiza las siguientes pruebas para ensayar el funcionamiento:
+
+PRUEBA 1: Estado inicial vacío
+- Qué hacer: Solo observa la pantalla al cargar.
+- Qué esperar: 
+  * La tabla debe decir "El carrito está vacío".
+  * El subtotal, descuento, IVA, envío y total deben estar en "$ 0".
+
+PRUEBA 2: Agregar un producto
+- Qué escribir:
+  * Nombre del producto: Mouse
+  * Precio (COP): 50000
+  * Cantidad: 2
+- Qué hacer: Clic en "Agregar al Carrito".
+- Qué esperar:
+  * Aparece una fila con el producto.
+  * Subtotal: $ 100.000
+  * IVA (19%): $ 19.000
+  * Envío: $ 12.000
+  * Total a pagar: $ 131.000
+
+PRUEBA 3: Validación de errores
+- Qué escribir:
+  * Nombre: Teclado
+  * Precio: -5000 (o 0)
+- Qué hacer: Clic en "Agregar al Carrito".
+- Qué esperar:
+  * Un mensaje rojo debajo del formulario que dice: 
+    "El precio debe ser mayor que cero".
+  * El producto NO se agrega.
+
+PRUEBA 4: Acumulación de productos repetidos
+- Qué escribir:
+  * Nombre: Mouse (el mismo de la prueba 2)
+  * Precio: 50000
+  * Cantidad: 1
+- Qué hacer: Clic en "Agregar al Carrito".
+- Qué esperar:
+  * La fila del "Mouse" no se duplica, sino que su cantidad cambia a 3.
+  * El subtotal aumenta a $ 150.000.
+
+PRUEBA 5: Aplicar un cupón de descuento
+- Qué escribir en la caja de cupón: DESC10
+- Qué hacer: Clic en "Aplicar".
+- Qué esperar:
+  * El descuento muestra -$ 15.000.
+  * El IVA y el Total se recalculan automáticamente.
+
+PRUEBA 6: Cupón flexible (minúsculas y espacios)
+- Qué escribir: desc10 (en minúsculas) o " DESC10 "
+- Qué hacer: Clic en "Aplicar".
+- Qué esperar: Debe aplicar el mismo descuento del 10% sin arrojar error.
+
+PRUEBA 7: Cupón inválido
+- Qué escribir: GRATIS
+- Qué hacer: Clic en "Aplicar".
+- Qué esperar:
+  * Un mensaje rojo que dice: "El cupón 'GRATIS' no es válido".
+
+PRUEBA 8: Eliminar un producto
+- Qué hacer: Clic en el botón rojo de la "X" en la fila del producto.
+- Qué esperar: El producto desaparece y los totales se actualizan.
+
+PRUEBA 9: Vaciar el carrito
+- Qué hacer: Clic en el botón rojo grande "Vaciar Carrito".
+- Qué esperar: 
+  * Se pide confirmación.
+  * Al aceptar, el carrito vuelve al estado inicial vacío y el envío vuelve a $ 0.
+
+
+--------------------------------------------------------------------------------
+6. ESTRUCTURA DEL PROYECTO
+--------------------------------------------------------------------------------
+- /src/carrito.js       -> Lógica de negocio pura (La clase Carrito).
+- /test/carrito.test.js -> Pruebas unitarias (31 pruebas).
+- /index.html           -> Interfaz gráfica (HTML).
+- /styles.css           -> Estilos de la interfaz (Mobile-First).
+- /app.js               -> Controlador que conecta el HTML con la lógica.
+- /package.json         -> Configuración del proyecto y dependencias.
+
+================================================================================
+FIN DE LA GUÍA
+================================================================================
