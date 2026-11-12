@@ -1,7 +1,7 @@
 // ============================================================
 // ARCHIVO: src/carrito.js
 // PROPÓSITO: Código de producción del carrito de compras (TDD).
-// ESTADO ACTUAL: Iteración 7 — VERDE (agrega IVA y total).
+// ESTADO ACTUAL: Iteración 7 — REFACTOR (extrae baseGravable).
 // ============================================================
 
 // Laboratorio TDD: carrito de compras
@@ -10,8 +10,6 @@
 // ============================================================
 // CONSTANTE: IVA
 // Porcentaje de IVA aplicable en Colombia.
-// Se define fuera de la clase para facilitar cambiarlo en el
-// futuro (una sola línea).
 // ============================================================
 const IVA = 0.19;
 
@@ -29,45 +27,21 @@ const CUPONES = {
 // Representa el carrito de compras del cliente.
 //
 // ITERACIÓN 1: CARRITO VACÍO  [ESTADO: VERDE]
-//   - cantidadDeItems() y subtotal() devolvían 0 (fake it).
-//
 // ITERACIÓN 2: AGREGAR PRODUCTOS  [ESTADO: VERDE]
-//   - constructor con this.productos = [].
-//   - agregar() inserta en el arreglo.
-//   - cantidadDeItems() y subtotal() usan reduce.
-//
 // ITERACIÓN 3: PRODUCTO REPETIDO  [ESTADO: VERDE]
-//   - agregar() busca con .find() y acumula cantidad si existe.
-//
 // ITERACIÓN 4: VALIDACIONES  [ESTADO: VERDE]
-//   - agregar() valida precio > 0 (number) y cantidad entero > 0.
-//
 // ITERACIÓN 5: ELIMINAR PRODUCTOS  [ESTADO: VERDE]
-//   - eliminar() usa findIndex + splice; error si no existe.
-//
 // ITERACIÓN 6: CUPONES DE DESCUENTO  [ESTADO: VERDE]
-//   - CUPONES fuera de la clase; aplicarCupon() y descuento().
-//
 // ITERACIÓN 7: IVA Y TOTAL A PAGAR  [ESTADO: VERDE]
-// Requisito: el IVA es del 19 % y se calcula sobre el subtotal
-// menos el descuento. El total es esa base más el IVA.
 //
-// TÉCNICA: Se agrega la constante IVA = 0.19 fuera de la clase.
-//   - iva(): Math.round((subtotal - descuento) * IVA).
-//   - total(): subtotal - descuento + iva.
-// Math.round se usa para no tener decimales (COP), según el PDF.
-//
-// EJEMPLO (2 × 50.000 con DESC10):
-//   subtotal 100.000 - descuento 10.000 = base 90.000
-//   iva = 90.000 × 0.19 = 17.100
-//   total = 90.000 + 17.100 = 107.100
+// REFACTOR FINAL (Iteración 7):
+// La expresión "subtotal - descuento" se repetía en iva() y
+// total(). Se extrajo a un método con nombre explicativo:
+// baseGravable(). Las pruebas no cambian; siguen en 17/17.
 //
 // RESULTADO ESPERADO AL EJECUTAR npm test:
-//   ✔ el IVA es el 19 % del subtotal cuando no hay cupón
-//   ✔ el IVA se calcula sobre el valor con descuento
-//   ✔ un carrito vacío tiene total 0
-//   ✔ (las 14 pruebas anteriores siguen en verde)
-//   tests 17 | pass 17 | fail 0
+//   tests 17 | pass 17 | fail 0 (mismo resultado que antes del
+//   refactor: cambiamos la estructura sin cambiar el comportamiento).
 // ============================================================
 export class Carrito {
   // ----------------------------------------------------------
@@ -81,22 +55,18 @@ export class Carrito {
 
   // ----------------------------------------------------------
   // MÉTODO: agregar(nombre, precio, cantidad)
-  // Agrega un producto al carrito con validaciones y
-  // acumulación de cantidad si ya existe.
+  // Agrega un producto con validaciones y acumulación.
   // (Iteraciones 2, 3 y 4)
   // ----------------------------------------------------------
   agregar(nombre, precio, cantidad = 1) {
-    // --- Validación de precio (Iteración 4) ---
     if (typeof precio !== 'number' || precio <= 0) {
       throw new Error('El precio debe ser mayor que cero');
     }
 
-    // --- Validación de cantidad (Iteración 4) ---
     if (!Number.isInteger(cantidad) || cantidad <= 0) {
       throw new Error('La cantidad debe ser un entero positivo');
     }
 
-    // --- Acumulación o inserción (Iteración 3) ---
     const existente = this.productos.find((p) => p.nombre === nombre);
 
     if (existente) {
@@ -154,7 +124,6 @@ export class Carrito {
   // ----------------------------------------------------------
   // MÉTODO: descuento()
   // Devuelve el valor del descuento en pesos colombianos.
-  // Si no hay cupón aplicado, devuelve 0.
   // (Iteración 6)
   // ----------------------------------------------------------
   descuento() {
@@ -163,21 +132,30 @@ export class Carrito {
   }
 
   // ----------------------------------------------------------
+  // MÉTODO: baseGravable()
+  // NUEVO (refactor Iteración 7): devuelve subtotal - descuento.
+  // Es la base sobre la que se calcula el IVA.
+  // Se extrajo para eliminar la duplicación en iva() y total().
+  // ----------------------------------------------------------
+  baseGravable() {
+    return this.subtotal() - this.descuento();
+  }
+
+  // ----------------------------------------------------------
   // MÉTODO: iva()
-  // Devuelve el IVA (19 %) calculado sobre la base gravable
-  // (subtotal - descuento). Redondeado a pesos colombianos.
-  // (Iteración 7)
+  // Devuelve el IVA (19 %) sobre la base gravable.
+  // (Iteración 7, refactorizado)
   // ----------------------------------------------------------
   iva() {
-    return Math.round((this.subtotal() - this.descuento()) * IVA);
+    return Math.round(this.baseGravable() * IVA);
   }
 
   // ----------------------------------------------------------
   // MÉTODO: total()
   // Devuelve el total a pagar: base gravable + IVA.
-  // (Iteración 7)
+  // (Iteración 7, refactorizado)
   // ----------------------------------------------------------
   total() {
-    return this.subtotal() - this.descuento() + this.iva();
+    return this.baseGravable() + this.iva();
   }
 }
