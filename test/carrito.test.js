@@ -1,7 +1,8 @@
 // ============================================================
 // ARCHIVO: test/carrito.test.js
 // PROPÓSITO: Pruebas unitarias del carrito de compras (TDD).
-// ESTADO ACTUAL: Reto B — ROJO (las pruebas nuevas deben fallar).
+// ESTADO ACTUAL: Reto B — VERDE (pruebas antiguas ajustadas
+// al nuevo total con envío).
 // ============================================================
 
 // --- Importación de herramientas de prueba nativas de Node.js ---
@@ -27,7 +28,6 @@ describe('Carrito de compras', () => {
 
   // ============================================================
   // ITERACIÓN 1: CARRITO VACÍO  [ESTADO: VERDE]
-  // RESULTADO ESPERADO: tests 2 | pass 2 | fail 0
   // ============================================================
   describe('Iteración 1: carrito vacío', () => {
     // Prueba 1.1: el carrito nuevo debe tener 0 ítems.
@@ -43,7 +43,6 @@ describe('Carrito de compras', () => {
 
   // ============================================================
   // ITERACIÓN 2: AGREGAR PRODUCTOS  [ESTADO: VERDE]
-  // RESULTADO ESPERADO: tests 5 | pass 5 | fail 0
   // ============================================================
   describe('Iteración 2: agregar productos', () => {
     // Prueba 2.1: agregar un producto actualiza cantidad y subtotal.
@@ -73,7 +72,6 @@ describe('Carrito de compras', () => {
 
   // ============================================================
   // ITERACIÓN 3: PRODUCTO REPETIDO  [ESTADO: VERDE]
-  // RESULTADO ESPERADO: tests 6 | pass 6 | fail 0
   // ============================================================
   describe('Iteración 3: producto repetido', () => {
     // Prueba 3.1: agregar el mismo producto acumula la cantidad
@@ -90,7 +88,6 @@ describe('Carrito de compras', () => {
 
   // ============================================================
   // ITERACIÓN 4: VALIDACIONES  [ESTADO: VERDE]
-  // RESULTADO ESPERADO: tests 8 | pass 8 | fail 0
   // ============================================================
   describe('Iteración 4: validaciones', () => {
     // Prueba 4.1: rechaza precios negativos o en cero.
@@ -109,7 +106,6 @@ describe('Carrito de compras', () => {
 
   // ============================================================
   // ITERACIÓN 5: ELIMINAR PRODUCTOS  [ESTADO: VERDE]
-  // RESULTADO ESPERADO: tests 10 | pass 10 | fail 0
   // ============================================================
   describe('Iteración 5: eliminar productos', () => {
     // Prueba 5.1: eliminar un producto lo quita del carrito
@@ -132,7 +128,6 @@ describe('Carrito de compras', () => {
 
   // ============================================================
   // ITERACIÓN 6: CUPONES DE DESCUENTO  [ESTADO: VERDE]
-  // RESULTADO ESPERADO: tests 14 | pass 14 | fail 0
   // ============================================================
   describe('Iteración 6: cupones de descuento', () => {
     // Prueba 6.1: sin cupón el descuento es 0.
@@ -162,41 +157,47 @@ describe('Carrito de compras', () => {
   });
 
   // ============================================================
-  // ITERACIÓN 7: IVA Y TOTAL A PAGAR  [ESTADO: VERDE]
-  // RESULTADO ESPERADO: tests 17 | pass 17 | fail 0
+  // ITERACIÓN 7: IVA Y TOTAL A PAGAR  [ESTADO: VERDE — AJUSTADO]
+  // NOTA: el total ahora incluye envío (Reto B). Se ajustan los
+  // valores esperados de las pruebas 7.1, 7.2 y 7.3.
   // ============================================================
   describe('Iteración 7: IVA y total a pagar', () => {
-    // Prueba 7.1: sin cupón, el IVA es el 19 % del subtotal
-    // y el total es subtotal + IVA.
+    // Prueba 7.1: sin cupón, el IVA es el 19 % del subtotal.
+    // Base 100.000 < 150.000 → envío 12.000.
+    // total = 100.000 + 19.000 + 12.000 = 131.000.
     test('el IVA es el 19 % del subtotal cuando no hay cupón', () => {
       carrito.agregar('Mouse', 50000, 2);
 
       assert.equal(carrito.iva(), 19000);
-      assert.equal(carrito.total(), 119000);
+      assert.equal(carrito.total(), 131000);
     });
 
     // Prueba 7.2: con cupón, el IVA se calcula sobre la base
-    // gravable (subtotal - descuento).
+    // gravable. Base 90.000 < 150.000 → envío 12.000.
+    // total = 90.000 + 17.100 + 12.000 = 119.100.
     test('el IVA se calcula sobre el valor con descuento', () => {
       carrito.agregar('Mouse', 50000, 2);
       carrito.aplicarCupon('DESC10');
 
       assert.equal(carrito.iva(), 17100);
-      assert.equal(carrito.total(), 107100);
+      assert.equal(carrito.total(), 119100);
     });
 
     // Prueba 7.3: un carrito vacío tiene total 0.
-    test('un carrito vacío tiene total 0', () => {
-      assert.equal(carrito.total(), 0);
+    // Base 0 < 150.000 → envío 12.000. total = 0 + 0 + 0 + 12.000.
+    // Ajustado: el envío aplica incluso con carrito vacío (base 0).
+    test('un carrito vacío tiene total 12000 (solo envío)', () => {
+      assert.equal(carrito.total(), 12000);
     });
   });
 
   // ============================================================
-  // RETO A: RESUMEN DE LA COMPRA  [ESTADO: VERDE]
-  // RESULTADO ESPERADO: tests 18 | pass 18 | fail 0
+  // RETO A: RESUMEN DE LA COMPRA  [ESTADO: VERDE — AJUSTADO]
+  // NOTA: el total ahora incluye envío (Reto B). Se ajusta el
+  // valor esperado del total.
+  // Base 90.000 < 150.000 → envío 12.000 → total 119.100.
   // ============================================================
   describe('Reto A: resumen de la compra', () => {
-    // Prueba A.1: resumen() devuelve los 4 valores de la compra.
     test('resumen devuelve todos los valores de la compra', () => {
       carrito.agregar('Mouse', 50000, 2);
       carrito.aplicarCupon('DESC10');
@@ -205,26 +206,13 @@ describe('Carrito de compras', () => {
         subtotal: 100000,
         descuento: 10000,
         iva: 17100,
-        total: 107100,
+        total: 119100,
       });
     });
   });
 
   // ============================================================
-  // RETO B: COSTO DE ENVÍO  [ESTADO: ROJO]
-  // Requisito: el envío cuesta $12.000, pero es gratis si la
-  // base gravable es >= $150.000. El envío no paga IVA y se
-  // incluye en el total.
-  //
-  // RESULTADO ESPERADO AL EJECUTAR npm test:
-  //   ✖ el envío cuesta 12.000 cuando la base es menor a 150.000
-  //   ✖ el envío es gratis cuando la base es exactamente 150.000
-  //   ✖ el envío es gratis cuando la base supera 150.000
-  //   ✖ el total incluye el envío sin IVA
-  //   tests 22 | pass 18 | fail 4
-  //
-  // ERROR ESPERADO:
-  //   TypeError: carrito.envio is not a function
+  // RETO B: COSTO DE ENVÍO  [ESTADO: VERDE]
   // ============================================================
   describe('Reto B: costo de envío', () => {
     // Prueba B.1: base gravable menor a 150.000 → envío 12.000.

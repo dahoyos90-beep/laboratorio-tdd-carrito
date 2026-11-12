@@ -1,7 +1,7 @@
 // ============================================================
 // ARCHIVO: src/carrito.js
 // PROPÓSITO: Código de producción del carrito de compras (TDD).
-// ESTADO ACTUAL: Reto A — VERDE (agrega resumen de la compra).
+// ESTADO ACTUAL: Reto B — VERDE (agrega costo de envío).
 // ============================================================
 
 // Laboratorio TDD: carrito de compras
@@ -23,6 +23,18 @@ const CUPONES = {
 };
 
 // ============================================================
+// CONSTANTE: ENVIO
+// Costo del envío en pesos colombianos.
+// ============================================================
+const ENVIO = 12000;
+
+// ============================================================
+// CONSTANTE: ENVIO_GRATIS_DESDE
+// Base gravable a partir de la cual el envío es gratis.
+// ============================================================
+const ENVIO_GRATIS_DESDE = 150000;
+
+// ============================================================
 // CLASE: Carrito
 // Representa el carrito de compras del cliente.
 //
@@ -33,20 +45,30 @@ const CUPONES = {
 // ITERACIÓN 5: ELIMINAR PRODUCTOS  [ESTADO: VERDE]
 // ITERACIÓN 6: CUPONES DE DESCUENTO  [ESTADO: VERDE]
 // ITERACIÓN 7: IVA Y TOTAL A PAGAR  [ESTADO: VERDE]
-//   - Incluye refactor final: baseGravable().
+//   - Incluye refactor: baseGravable().
 //
 // RETO A: RESUMEN DE LA COMPRA  [ESTADO: VERDE]
-// Requisito: resumen() devuelve un objeto con subtotal,
-// descuento, iva y total.
+//   - resumen() devuelve { subtotal, descuento, iva, total }.
 //
-// TÉCNICA: Se agrupan los 4 valores en un objeto literal.
-// No hay lógica nueva: reutiliza subtotal(), descuento(),
-// iva() y total() ya existentes.
+// RETO B: COSTO DE ENVÍO  [ESTADO: VERDE]
+// Requisito: el envío cuesta $12.000, pero es gratis si la
+// base gravable es >= $150.000. El envío no paga IVA y se
+// incluye en el total.
+//
+// TÉCNICA:
+//   - envio(): si baseGravable() >= ENVIO_GRATIS_DESDE → 0;
+//     si no → ENVIO.
+//   - total(): baseGravable() + iva() + envio().
+//
+// CASO LÍMITE: base gravable exactamente 150.000 → envío 0.
 //
 // RESULTADO ESPERADO AL EJECUTAR npm test:
-//   ✔ resumen devuelve todos los valores de la compra
-//   ✔ (las 17 pruebas anteriores siguen en verde)
-//   tests 18 | pass 18 | fail 0
+//   ✔ el envío cuesta 12.000 cuando la base es menor a 150.000
+//   ✔ el envío es gratis cuando la base es exactamente 150.000
+//   ✔ el envío es gratis cuando la base supera 150.000
+//   ✔ el total incluye el envío sin IVA
+//   ✔ (las 18 pruebas anteriores siguen en verde)
+//   tests 22 | pass 22 | fail 0
 // ============================================================
 export class Carrito {
   // ----------------------------------------------------------
@@ -155,19 +177,28 @@ export class Carrito {
   }
 
   // ----------------------------------------------------------
+  // MÉTODO: envio()
+  // NUEVO (Reto B): devuelve 0 si la base gravable es >= 150.000;
+  // si no, devuelve ENVIO (12.000).
+  // ----------------------------------------------------------
+  envio() {
+    return this.baseGravable() >= ENVIO_GRATIS_DESDE ? 0 : ENVIO;
+  }
+
+  // ----------------------------------------------------------
   // MÉTODO: total()
-  // Devuelve el total a pagar: base gravable + IVA.
-  // (Iteración 7)
+  // Devuelve el total a pagar: base gravable + IVA + envío.
+  // El envío no paga IVA.
+  // (Iteración 7 + Reto B)
   // ----------------------------------------------------------
   total() {
-    return this.baseGravable() + this.iva();
+    return this.baseGravable() + this.iva() + this.envio();
   }
 
   // ----------------------------------------------------------
   // MÉTODO: resumen()
-  // NUEVO (Reto A): devuelve un objeto con los 4 valores
-  // de la compra: subtotal, descuento, iva y total.
-  // Reutiliza los métodos ya existentes.
+  // Devuelve un objeto con los 4 valores de la compra.
+  // (Reto A)
   // ----------------------------------------------------------
   resumen() {
     return {
