@@ -1,7 +1,7 @@
 // ============================================================
 // ARCHIVO: test/carrito.test.js
 // PROPÓSITO: Pruebas unitarias del carrito de compras (TDD).
-// ESTADO ACTUAL: Iteración 5 — ROJO (las pruebas nuevas deben fallar).
+// ESTADO ACTUAL: Iteración 6 — ROJO (las pruebas nuevas deben fallar).
 // ============================================================
 
 // --- Importación de herramientas de prueba nativas de Node.js ---
@@ -108,19 +108,8 @@ describe('Carrito de compras', () => {
   });
 
   // ============================================================
-  // ITERACIÓN 5: ELIMINAR PRODUCTOS  [ESTADO: ROJO]
-  // Requisito: se puede quitar un producto del carrito por su
-  // nombre. Si el producto no existe, se lanza un error.
-  //
-  // RESULTADO ESPERADO AL EJECUTAR npm test:
-  //   ✖ eliminar un producto lo quita del carrito
-  //   ✖ eliminar un producto que no existe lanza un error
-  //   tests 10 | pass 8 | fail 2
-  //
-  // ERROR ESPERADO:
-  //   TypeError: carrito.eliminar is not a function
-  //   AssertionError: The input did not match the regular
-  //   expression /no está en el carrito/
+  // ITERACIÓN 5: ELIMINAR PRODUCTOS  [ESTADO: VERDE]
+  // RESULTADO ESPERADO: tests 10 | pass 10 | fail 0
   // ============================================================
   describe('Iteración 5: eliminar productos', () => {
     // Prueba 5.1: eliminar un producto lo quita del carrito
@@ -138,6 +127,50 @@ describe('Carrito de compras', () => {
     // Prueba 5.2: eliminar un producto que no existe lanza error.
     test('eliminar un producto que no existe lanza un error', () => {
       assert.throws(() => carrito.eliminar('Monitor'), /no está en el carrito/);
+    });
+  });
+
+  // ============================================================
+  // ITERACIÓN 6: CUPONES DE DESCUENTO  [ESTADO: ROJO]
+  // Requisito: los cupones DESC10 y DESC20 descuentan el 10 %
+  // y el 20 % del subtotal. Un cupón desconocido es un error.
+  //
+  // RESULTADO ESPERADO AL EJECUTAR npm test:
+  //   ✖ sin cupón el descuento es 0
+  //   ✖ el cupón DESC10 descuenta el 10 % del subtotal
+  //   ✖ el cupón DESC20 descuenta el 20 % del subtotal
+  //   ✖ un cupón inexistente lanza un error
+  //   tests 14 | pass 10 | fail 4
+  //
+  // ERRORES ESPERADOS:
+  //   TypeError: carrito.descuento is not a function
+  //   TypeError: carrito.aplicarCupon is not a function
+  //   AssertionError: The input did not match /no es válido/
+  // ============================================================
+  describe('Iteración 6: cupones de descuento', () => {
+    // Prueba 6.1: sin cupón el descuento es 0.
+    test('sin cupón el descuento es 0', () => {
+      carrito.agregar('Teclado', 200000, 1);
+      assert.equal(carrito.descuento(), 0);
+    });
+
+    // Prueba 6.2: DESC10 descuenta el 10 % del subtotal.
+    test('el cupón DESC10 descuenta el 10 % del subtotal', () => {
+      carrito.agregar('Teclado', 200000, 1);
+      carrito.aplicarCupon('DESC10');
+      assert.equal(carrito.descuento(), 20000);
+    });
+
+    // Prueba 6.3: DESC20 descuenta el 20 % del subtotal.
+    test('el cupón DESC20 descuenta el 20 % del subtotal', () => {
+      carrito.agregar('Teclado', 200000, 1);
+      carrito.aplicarCupon('DESC20');
+      assert.equal(carrito.descuento(), 40000);
+    });
+
+    // Prueba 6.4: un cupón inexistente lanza un error.
+    test('un cupón inexistente lanza un error', () => {
+      assert.throws(() => carrito.aplicarCupon('GRATIS'), /no es válido/);
     });
   });
 
